@@ -1,4 +1,5 @@
 <script setup>
+  import {RouterView } from 'vue-router';
   import AboutMe from './components/AboutMe.vue';
 
 
@@ -13,13 +14,13 @@
       </div>
       <hr/>
         <div class="list">
-          <a>Home</a>
-          <a>About me</a>
+          <a href="/">Home</a>
+          <a href="/aboutme">About me</a>
         </div>
       <hr/>
     </header>
     <body>
-      <AboutMe/>
+      <RouterView/>
 
     </body>
   </div>
