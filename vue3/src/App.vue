@@ -1,8 +1,11 @@
 <script setup>
   import {RouterView } from 'vue-router'
-  import {ref} from 'vue'  
+  import {ref,onMounted} from 'vue'  
   import { RouterLink } from 'vue-router';
 
+
+ 
+  
 </script>
 
 
@@ -15,6 +18,8 @@
       <hr/>
         <div class="list">
           <RouterLink class="router-link" active-class="router-link-active" to="/">Home</RouterLink>
+          <RouterLink class="router-link" active-class="router-link-active" to="/Tool">Tool</RouterLink>
+          <RouterLink class="router-link" active-class="router-link-active" to="/Game">Game</RouterLink>
           <RouterLink class="router-link" active-class="router-link-active" to="/aboutme">About me</RouterLink>
         </div>
       <hr/>
@@ -39,7 +44,7 @@
   }
   .list{
     display: flex;
-    margin: 5px 10px
+    margin: 5px 15px
   }
   a{
     margin: 10px;
@@ -51,6 +56,7 @@
   .router-link {
     text-decoration: none;
     font-weight: 100;
+    margin-right: 50px;
     color:rgb(255, 255, 255);
   }
   

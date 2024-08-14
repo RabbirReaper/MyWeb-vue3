@@ -5,10 +5,19 @@
 
 <template>
   <div>
-    <RouterLink :to="`/Notes/${data.id}`" class="container" v-for="data in RabbirNotesJson" :key="data.id" >
+    <!-- <RouterLink :to="`/Notes/${data.id}`" class="container" v-for="data in RabbirNotesJson" :key="data.id" >
       {{ data.name }}
       <br/>
       {{ data.p }}
+    </RouterLink> -->
+    <RouterLink :to="`/AnnoySystem`" class="container" >
+      <h3>
+        This is a annoy system.
+      </h3>
+      <p>
+        Annoy system is annoy system.
+      </p>
+      
     </RouterLink>
   </div>
 </template>
@@ -18,7 +27,7 @@
     text-decoration: none;
     display: block;
     margin: 20px auto; /* Adds space between each block */
-    padding: 15px; /* Adds padding inside the block */
+    padding: 1px 30px;/* Adds padding inside the block */
     border: 1px solid #ccc; /* Adds a subtle border around each block */
     border-radius: 8px; /* Rounds the corners of each block */
     background-color: #443f3f; /* Light background color */
