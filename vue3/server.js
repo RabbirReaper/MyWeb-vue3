@@ -1,7 +1,9 @@
-import express from 'express'
+import express, { json } from 'express'
 import cors from 'cors'
 import axios from 'axios'
-import dotenv from 'dotenv';
+import dotenv from 'dotenv'
+import fs from 'fs/promises'; // 引入 fs/promises 模組
+import anonymousMsg from "./src/data/anonymousMsg.json" assert { type: 'json' };
 
 dotenv.config()
 const app = express()
@@ -11,19 +13,21 @@ app.use(cors())
 app.use(express.static('dist'))
 app.use(express.json())
 
-// console.log(process.env.BOT_Token);
-// const fiedJSON =  JSON.parse( await fs.readFile("./public/data.json"))
-
-// const modifyJSON = async(modifiedJSON) => {
-//   fs.writeFile('./public/data.json', modifiedJSON)
-// }
-
-// app.get('/getOrder' , async(req,res) => {
-//   // res.send(fiedJSON.order)
-//   res.send("hi")
-// })
 
 app.post('/sendMsgToChannel', async (req, res) => {
+  
+  anonymousMsg.push({
+    "id":req.body.order,
+    "content": req.body.onlyMsg
+  })
+  fs.writeFile('./src/data/anonymousMsg.json', JSON.stringify(anonymousMsg, null, 2), (err) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log("JSON data is saved.");
+    }
+  });
+  
   const msgresponse = await axios({
     method:'post',
     url:`https://discord.com/api/channels/${process.env.Application_ID}/messages`,
@@ -52,6 +56,12 @@ app.post('/sendMsgToChannel', async (req, res) => {
   ])
   res.send('Done!')
 })
+
+app.get('/getanonymousMsg',async (req, res) => {
+  const data = await fs.readFile('./src/data/anonymousMsg.json', 'utf8');
+  const jsonData = JSON.parse(data); // 將讀取到的字符串轉換為 JSON 對象
+  res.json(jsonData);
+}) 
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)

@@ -1,17 +1,24 @@
 <script setup>
-  import { computed, reactive, ref, watch } from 'vue'
+  import { computed, reactive, ref, watch ,onMounted} from 'vue'
   import bothead from "../assets/bothead.svg"
   import axios from 'axios'
  
+  const anonymousMsg = ref(null)
+  const order = ref('0')
+  onMounted(async () => {
+    await getanonyMsg()
+    order.value = anonymousMsg.value.length+1
+  })
 
-  const disabled = ref(false)
-  const GetOrder = async() => {
-    
+  const getanonyMsg = async() =>{
+    const res = await axios({
+      method : 'get',
+      url : 'http://localhost:3000/getanonymousMsg'
+    })
+    anonymousMsg.value = res.data
   }
 
-
-  // const order = GetOrder()
-  const order = ref(0)
+  
 
   const currentDate = ref("")
   const currentDate2 = ref("")
@@ -45,20 +52,23 @@
       alert("Your messenger too long ! \n Please reset your commit.")
       return
     }
-    
     alert(msg.value)
     const input_msg = `#${order.value} | ${currentDate2.value}\n-=-=-=-=-=-\n${msg.value}\n-=-=-=-=-=-`
-    order.value++;
+    
     const res = await axios({
       method : 'post',
       url : 'http://localhost:3000/sendMsgToChannel',
       data:{
         msg:input_msg,
+        onlyMsg:msg.value,
         order:order.value
       }
     })
+    await getanonyMsg()
+    order.value = anonymousMsg.value.length+1
     alert(res.data)
   }
+  
 
 
 
@@ -99,10 +109,8 @@
       
       </div>
     </div>
-    <br>
+    <br><br>
     <button @click="sendMsg()" class="shake">傳送資料</button>
-    <br/>
-    <button @click="GetOrder" class="shake">Get Order </button>
   </div>
 </template>
 

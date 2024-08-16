@@ -10,7 +10,7 @@
       <br/>
       {{ data.p }}
     </RouterLink> -->
-    <RouterLink :to="`/AnnoySystem`" class="container" >
+    <RouterLink :to="`/anonymousSystem`" class="container" >
       <h3>
         This is a annoy system.
       </h3>

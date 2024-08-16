@@ -4,7 +4,7 @@ import AboutMe from "../components/AboutMe.vue";
 import Notes from "../components/Notes.vue";
 import Game from "../components/Game.vue";
 import Tool from "../components/Tool.vue";
-import AnnoySystem from "../components/AnnoySystem.vue";
+import anonymousSystem from "../components/anonymousSystem.vue";
 
 
 const router = createRouter({
@@ -31,9 +31,9 @@ const router = createRouter({
       component: Tool
     },
     {
-      path:"/AnnoySystem",
-      name:"AnnoySystem",
-      component: AnnoySystem
+      path:"/anonymousSystem",
+      name:"anonymousSystem",
+      component: anonymousSystem
     },
     {
       path:"/notes/:id",
