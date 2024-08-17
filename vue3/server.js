@@ -3,7 +3,9 @@ import cors from 'cors'
 import axios from 'axios'
 import dotenv from 'dotenv'
 import fs from 'fs/promises'; // 引入 fs/promises 模組
-import anonymousMsg from "./src/data/anonymousMsg.json" assert { type: 'json' };
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { join } from 'path';
 
 dotenv.config()
 const app = express()
@@ -14,13 +16,20 @@ app.use(express.static('dist'))
 app.use(express.json())
 
 
+// 获取当前文件的路径和目录名
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const filePath = join(__dirname, 'src', 'data', 'anonymousMsg.json');
+
+
 app.post('/sendMsgToChannel', async (req, res) => {
-  
+  const data = await fs.readFile(filePath, 'utf8');
+  let anonymousMsg = JSON.parse(data);
   anonymousMsg.push({
     "id":req.body.order,
     "content": req.body.onlyMsg
   })
-  fs.writeFile('./src/data/anonymousMsg.json', JSON.stringify(anonymousMsg, null, 2), (err) => {
+  fs.writeFile(filePath, JSON.stringify(anonymousMsg, null, 2), (err) => {
     if (err) {
       console.log(err);
     } else {
@@ -58,10 +67,14 @@ app.post('/sendMsgToChannel', async (req, res) => {
 })
 
 app.get('/getanonymousMsg',async (req, res) => {
-  const data = await fs.readFile('./src/data/anonymousMsg.json', 'utf8');
+  const data = await fs.readFile(filePath, 'utf8');
   const jsonData = JSON.parse(data); // 將讀取到的字符串轉換為 JSON 對象
   res.json(jsonData);
 }) 
+
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+});
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)

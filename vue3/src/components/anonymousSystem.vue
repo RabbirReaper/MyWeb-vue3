@@ -7,6 +7,7 @@
   const order = ref('0')
   onMounted(async () => {
     await getanonyMsg()
+    if(anonymousMsg.value == null) console.log("!!!")
     order.value = anonymousMsg.value.length+1
   })
 

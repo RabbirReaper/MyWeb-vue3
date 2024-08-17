@@ -5,7 +5,7 @@ import Notes from "../components/Notes.vue";
 import Game from "../components/Game.vue";
 import Tool from "../components/Tool.vue";
 import anonymousSystem from "../components/anonymousSystem.vue";
-
+import NotFound from "../components/NotFound.vue";
 
 const router = createRouter({
   history:createWebHistory (import.meta.env.BASE_URL),
@@ -14,6 +14,10 @@ const router = createRouter({
       path:"/",
       name:"Home",
       component: Home 
+    },
+    {
+      path:"/home",
+      redirect:"/"
     },
     {
       path:"/aboutme",
@@ -39,6 +43,11 @@ const router = createRouter({
       path:"/notes/:id",
       name:"note",
       component: Notes
+    },
+    {
+      path:"/:path(.*)*",
+      name:"NotFound",
+      component:NotFound
     }
   ]
 })
