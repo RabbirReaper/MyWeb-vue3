@@ -12,10 +12,10 @@
     </RouterLink> -->
     <RouterLink :to="`/anonymousSystem`" class="container" >
       <h3>
-        This is a annoy system.
+        This is a anonymous system.
       </h3>
       <p>
-        Annoy system is annoy system.
+        anonymous system is anonymous system.
       </p>
       
     </RouterLink>
