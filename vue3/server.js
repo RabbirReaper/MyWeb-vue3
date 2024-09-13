@@ -2,7 +2,7 @@ import express, { json } from 'express'
 import cors from 'cors'
 import axios from 'axios'
 import dotenv from 'dotenv'
-import fs from 'fs/promises'; // 引入 fs/promises 模組
+import fs from 'fs/promises'; 
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { join } from 'path';
@@ -16,7 +16,6 @@ app.use(express.static('dist'))
 app.use(express.json())
 
 
-// 获取当前文件的路径和目录名
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const filePath = join(__dirname, 'src', 'data', 'anonymousMsg.json');

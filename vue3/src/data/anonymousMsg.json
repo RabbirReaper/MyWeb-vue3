@@ -14,5 +14,21 @@
   {
     "id": 4,
     "content": "```cpp\n#include<bits/stdc++.h>\nusing namespace std;\n#define Rabbir_Reaper ios_base::sync_with_stdio(0); cin.tie(0);\nstruct mstt{\n    int s,t,m;\n};\nbool cmp(mstt a,mstt b){\n    return a.s<b.s;\n}\nvector<mstt> sect;\npriority_queue<pair<int,int>> pq;\nint sum=0,mx=0;\nint main(){\n    int n;\n    cin>>n;\n    for(int i=0,m,s,t;i<n;i++){\n        cin>>m>>s>>t;\n        sect.push_back({s,t,m});\n    }\n    sort(sect.begin(),sect.end(),cmp);\n    for(int i=0;i<n;i++){\n        while(!pq.empty() && -pq.top().first < sect[i].s){\n            sum -= pq.top().second;\n            pq.pop();\n        }\n        sum += sect[i].m;\n        pq.push({-sect[i].t,sect[i].m});\n        mx = max(mx,sum);\n    }\n    cout<<mx;\n}\n```"
+  },
+  {
+    "id": 5,
+    "content": "Hello "
+  },
+  {
+    "id": 6,
+    "content": "as"
+  },
+  {
+    "id": 7,
+    "content": "ABCD"
+  },
+  {
+    "id": 8,
+    "content": "之前聽我同學的高中學校有個社團\n取名叫「可以社」\n\n所以學姊招生時就會說: \n「可以社在裡面喔!」\n\n同學:「不過後來被校長發現了」\n「所以就變成只能學長招生」\n\n我:\n「那不是更好了嗎」"
   }
 ]

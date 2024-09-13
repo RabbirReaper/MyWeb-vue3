@@ -5,11 +5,16 @@
 
 <template>
   <div>
-    <!-- 使用 v-if 檢查 data 是否存在 -->
     <img src="https://leetcode-stats.vercel.app/api?username=Rabbir_Reaper&theme=Dark" alt="lettCode">
-    <!-- 加載時顯示的內容 -->
-    
+    <img src="https://www.nkust.edu.tw/var/file/0/1000/img/327/722355975.jpg" alt="map">
   </div>
 
+  
 
 </template>
+
+<style scoped>
+  img{
+    max-width: 100%;
+  }
+</style>
