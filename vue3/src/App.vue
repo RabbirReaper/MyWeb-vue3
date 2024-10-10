@@ -1,11 +1,7 @@
 <script setup>
   import {RouterView } from 'vue-router'
   import {ref,onMounted} from 'vue'  
-  import { RouterLink } from 'vue-router';
-
-
- 
-  
+  import { RouterLink } from 'vue-router'; 
 </script>
 
 

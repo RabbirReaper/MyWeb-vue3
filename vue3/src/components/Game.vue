@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import fs from 'fs'
+// import fs from 'fs'
 
 const x = ref([7, 2, 3, 4, 5])
 
