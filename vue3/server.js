@@ -86,10 +86,17 @@ app.get('/getanonymousMsg', async (req, res) => {
 })
 
 app.get('/cashFlow', async (req, res) => {
-  const cashFlows = await CashFlow.find({})
+  const {start, end} = req.query;
+  console.log(start)
+  console.log(end)
+  const cashFlows = await CashFlow.find({
+    date: {
+      $gte: start,
+      $lt: end
+    }
+  })
     .populate('type', 'name')
     .populate('category', 'name')
-  // console.log(cashFlows)
   res.json(cashFlows)
 })
 app.get('/cashFlowType', async (req, res) => {
@@ -117,14 +124,14 @@ app.get('/incomeCategory', async (req, res) => {
   res.json(formattedTypes)
 })
 
-app.post('/cashFlow', async (req, res,next) => {
+app.post('/cashFlow', async (req, res, next) => {
   const newCashFlow = new CashFlow(req.body);
   await newCashFlow.save();
   res.status(201).send({ message: 'Cash flow created successfully', data: newCashFlow });
   next()
 })
-app.post('/category', async (req, res,next) => {
-  const newCategory = (req.body.type === 'income' ? new IncomeCategory({name : req.body.name}) : new ExpenseCategory({name:req.body.name}));
+app.post('/category', async (req, res, next) => {
+  const newCategory = (req.body.type === 'income' ? new IncomeCategory({ name: req.body.name }) : new ExpenseCategory({ name: req.body.name }));
   await newCategory.save();
   res.status(201).send({ message: 'Cash flow created successfully', data: newCategory });
   next()

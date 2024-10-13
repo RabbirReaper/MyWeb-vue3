@@ -1,63 +1,43 @@
 <script setup>
-  import {RouterView } from 'vue-router'
-  import {ref,onMounted} from 'vue'  
-  import { RouterLink } from 'vue-router'; 
+import { RouterView } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { RouterLink } from 'vue-router'; 
 </script>
 
 
 <template>
-  <div class="main-1">
+  <div class="container mx-auto mt-5">
     <header>
-      <div class="container">
-        <h1 style="font-size: 300%;">Rabbir's Web</h1>
+      <div class="text-center">
+        <p class="fs-1">Rabbir's Web</p>
       </div>
-      <hr/>
-        <div class="list">
-          <RouterLink class="router-link" active-class="router-link-active" to="/">Home</RouterLink>
-          <RouterLink class="router-link" active-class="router-link-active" to="/Tool">Tool</RouterLink>
-          <RouterLink class="router-link" active-class="router-link-active" to="/Game">Game</RouterLink>
-          <RouterLink class="router-link" active-class="router-link-active" to="/aboutme">About me</RouterLink>
-        </div>
-      <hr/>
+      <hr class="mt-5 mb-1"/>
+      <div class="navbar navbar-expand-lg navbar-light">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 fs-5">
+          <li class="nav-item">
+            <RouterLink class="nav-link" active-class="nav-link active" to="/">Home</RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link" active-class="nav-link active" to="/Tool">Tool</RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link" active-class="nav-link active" to="/Game">Game</RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link" active-class="nav-link active" to="/aboutme">About me</RouterLink>
+          </li>
+        </ul>
+      </div>
+      <hr class="mt-1 mb-1" />
     </header>
-    <body>
-      <RouterView/>
+    <main>
+      <RouterView />
 
-    </body>
+    </main>
   </div>
 </template>
 
 
 <style scoped>
-  .main-1{
-    max-width: 1280px;
-    margin: 0 auto;
-    
-  }
-  .container{
-    text-align: center;
-  }
-  .list{
-    display: flex;
-    margin: 5px 15px
-  }
-  a{
-    margin: 10px;
-    font-size: 20px;
-    font-weight:normal;
-  }
 
-
-  .router-link {
-    text-decoration: none;
-    font-weight: 100;
-    margin-right: 50px;
-    color:rgb(255, 255, 255);
-  }
-  
-  .router-link-active {
-    text-decoration: none;
-    font-weight: 900;
-    color:rgb(26, 172, 194);
-  }
 </style>

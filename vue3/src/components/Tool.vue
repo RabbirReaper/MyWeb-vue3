@@ -1,6 +1,7 @@
 <template>
   <div>
-    <RouterLink :to="`/Tool/accounting`" class="container">
+    <RouterLink :to="`/Tool/accounting`"
+      class="card text-left text-decoration-none mt-3 pt-3 ps-3 bg-secondary custom-card">
       <h3>
         This is a accounting tool.
       </h3>
@@ -13,20 +14,21 @@
 </template>
 
 <style scoped>
-  .container {
-    text-decoration: none;
-    display: block;
-    margin: 20px auto; /* Adds space between each block */
-    padding: 1px 30px;/* Adds padding inside the block */
-    border: 1px solid #ccc; /* Adds a subtle border around each block */
-    border-radius: 8px; /* Rounds the corners of each block */
-    background-color: #443f3f; /* Light background color */
-    cursor: pointer; /* Changes the cursor to indicate that it's clickable */
-    transition: transform 0.2s, box-shadow 0.2s; /* Adds smooth animations */
-    color: inherit;
-  }
-  .container:hover {
-    transform: translateY(-3px); /* Slightly lifts the block */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Increases shadow on hover */
-  }
+.custom-card {
+  background-color: #ffcc00;
+  /* 自定義卡片背景色 */
+  transition: transform 0.3s ease;
+  /* 增加動畫效果 */
+}
+
+.custom-card:hover {
+  transform: translateY(-5px);
+  /* 滑過時卡片向上移動 */
+}
+
+.custom-card h3,
+.custom-card p {
+  color: white;
+  /* 調整文字顏色 */
+}
 </style>
