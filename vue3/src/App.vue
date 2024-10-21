@@ -6,13 +6,13 @@ import { RouterLink } from 'vue-router';
 
 
 <template>
-  <div class="container mx-auto mt-5">
+  <div class="container mx-auto">
     <header>
-      <div class="text-center">
+      <!-- <div class="text-center">
         <p class="fs-1">Rabbir's Web</p>
-      </div>
-      <hr class="mt-5 mb-1"/>
-      <div class="navbar navbar-expand-lg navbar-light">
+      </div> -->
+      <!-- <hr class="mt-5 mb-1"/> -->
+      <div class="navbar navbar-expand-lg navbar-light pe-2">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0 fs-5">
           <li class="nav-item">
             <RouterLink class="nav-link" active-class="nav-link active" to="/">Home</RouterLink>
@@ -27,7 +27,9 @@ import { RouterLink } from 'vue-router';
             <RouterLink class="nav-link" active-class="nav-link active" to="/aboutme">About me</RouterLink>
           </li>
         </ul>
+        <p class="navbar-nav  mb-2 mb-lg-0 fs-5">Rabbir's Web</p>
       </div>
+
       <hr class="mt-1 mb-1" />
     </header>
     <main>
@@ -38,6 +40,4 @@ import { RouterLink } from 'vue-router';
 </template>
 
 
-<style scoped>
-
-</style>
+<style scoped></style>

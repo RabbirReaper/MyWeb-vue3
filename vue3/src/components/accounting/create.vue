@@ -1,43 +1,54 @@
 <template>
-  <div>
-    <h1>Create</h1>
-    <div>
-      <label for="description">description</label>
-      <input type="text" id="description" v-model="description">
-    </div>
-    <div>
-      <label for="amount">amount</label>
-      <input type="number" id="amount" v-model="amount">
-    </div>
+  <div class="row">
+    <h1 class="text-center fs-1">New account</h1>
+    <div class="col-6 offset-3 validated-form">
+      <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <input class="form-control" type="text" id="description" v-model="description">
+      </div>
 
-    <div v-if="cashFlowTypes.length > 0">
-      <div class="container-1">
-        <div v-for="item in cashFlowTypes" :key="item._id">
-          <input type="radio" :id="item._id" :value="item" v-model="selectedType" name="cashFlowType" />
-          <label :for="item._id">{{ item.name }}</label>
+      <div class="mb-3">
+        <label class="form-label" for="amount">Amount</label>
+        <div class="input-group">
+          <span class="input-group-text" id="price-label">$</span>
+          <input class="form-control" type="number" id="amount" v-model="amount">
         </div>
       </div>
-    </div>
 
-    <div v-if="selectedType.name === 'income' && incomeCategories.length > 0">
-      <div class="container-1">
-        <div v-for="item in incomeCategories" :key="item._id">
-          <input type="radio" :id="item._id" :value="item._id" v-model="selectedCategory" name="incomeCategory" />
-          <label :for="item._id">{{ item.name }}</label>
+      <div class="mb-3">
+        <label for="date" class="form0label">Date</label>
+        <input type="date" class="form-control">
+      </div>
+
+      <div v-if="cashFlowTypes.length > 0">
+        <div class="form-check form-check-inline mb-3" v-for="item in cashFlowTypes" :key="item._id">
+          <input class="form-check-input" type="radio" :id="item._id" :value="item" v-model="selectedType"
+            name="cashFlowType" />
+          <label class="form-check-label" :for="item._id">{{ item.name }}</label>
         </div>
       </div>
-    </div>
 
-    <div v-if="selectedType.name === 'expense' && expenseCategories.length > 0">
-      <div class="container-1">
-        <div v-for="item in expenseCategories" :key="item._id">
-          <input type="radio" :id="item._id" :value="item._id" v-model="selectedCategory" name="expenseCategory" />
-          <label :for="item._id">{{ item.name }}</label>
+
+
+      <div v-if="selectedType.name === 'income' && incomeCategories.length > 0">
+        <div class="form-check form-check-inline mb-3" v-for="item in incomeCategories" :key="item._id">
+          <input class="form-check-input" type="radio" :id="item._id" :value="item._id" v-model="selectedCategory"
+            name="incomeCategory" />
+          <label class="form-check-label" :for="item._id">{{ item.name }}</label>
         </div>
       </div>
-    </div>
-    <button @click="postCashFlow">Submit</button>
 
+      <div v-if="selectedType.name === 'expense' && expenseCategories.length > 0">
+        <div class="form-check form-check-inline mb-3" v-for="item in expenseCategories" :key="item._id">
+          <input class="form-check-input" type="radio" :id="item._id" :value="item._id" v-model="selectedCategory"
+            name="expenseCategory" />
+          <label class="form-check-label" :for="item._id">{{ item.name }}</label>
+        </div>
+      </div>
+      <div class="mb-3">
+        <button class="btn btn-primary " @click="postCashFlow">Submit</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -108,7 +119,7 @@ onMounted(async () => {
   await getcashFlowType()
   await getincomeCategory()
   await getexpenseCategory()
-  selectedType.value= cashFlowTypes.value[0]
+  selectedType.value = cashFlowTypes.value[0]
 });
 
 </script>

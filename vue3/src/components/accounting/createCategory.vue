@@ -1,37 +1,38 @@
 <template>
-  <div>
-    <h1>Create</h1>
-    
-    <div v-if="cashFlowTypes.length > 0">
-      <div class="container-1">
-        <div v-for="item in cashFlowTypes" :key="item._id">
-          <input type="radio" :id="item._id" :value="item" v-model="selectedType" name="cashFlowType" />
-          <label :for="item._id">{{ item.name }}</label>
+  <div class="row">
+    <h1 class="text-center fs-1">Create</h1>
+    <div class="col-6 offset-3 validated-form">
+      <div v-if="cashFlowTypes.length > 0">
+        <div class="form-check form-check-inline mb-3" v-for="item in cashFlowTypes" :key="item._id">
+          <input class="form-check-input" type="radio" :id="item._id" :value="item" v-model="selectedType"
+            name="cashFlowType" />
+          <label class="form-check-label" :for="item._id">{{ item.name }}</label>
         </div>
       </div>
-    </div>
 
-    <div v-if="selectedType.name === 'income' && incomeCategories.length > 0">
-      <div class="container-1">
-        <div v-for="item in incomeCategories" :key="item._id" style="margin-right: 1em">
-          <p :for="item._id">{{ item.name }}</p>
+      <div v-if="selectedType.name === 'income' && incomeCategories.length > 0">
+        <div class="container-1 d-flex me-3">
+          <div v-for="item in incomeCategories" :key="item._id" style="margin-right: 1em">
+            <p :for="item._id">{{ item.name }}</p>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div v-if="selectedType.name === 'expense' && expenseCategories.length > 0">
-      <div class="container-1">
-        <div v-for="item in expenseCategories" :key="item._id" style="margin-right: 1em">
-          <p :for="item._id">{{ item.name }}</p>
+      <div v-if="selectedType.name === 'expense' && expenseCategories.length > 0">
+        <div class="container-1 d-flex me-3">
+          <div v-for="item in expenseCategories" :key="item._id" style="margin-right: 1em">
+            <p :for="item._id">{{ item.name }}</p>
+          </div>
         </div>
       </div>
-    </div>
-    <div>
-      <label for="category">category</label>
-      <input type="text" id="category" v-model="category">
-    </div>
-    <button @click="postCategory">add</button>
 
+      <div class="mb-3">
+        <label class="form-label" for="category">category</label>
+        <input class="form-control" type="text" id="category" v-model="category">
+      </div>
+
+      <button class="btn btn-primary" @click="postCategory">add</button>
+    </div>
   </div>
 </template>
 
@@ -85,8 +86,8 @@ const postCategory = async () => {
     method: 'post',
     url: 'http://localhost:3000/category',
     data: {
-      type:selectedType.value.name,
-      name:category.value
+      type: selectedType.value.name,
+      name: category.value
     }
   }).catch((e) => {
     console.log(e)
@@ -97,14 +98,11 @@ onMounted(async () => {
   await getcashFlowType()
   await getincomeCategory()
   await getexpenseCategory()
-  selectedType.value= cashFlowTypes.value[0]
+  selectedType.value = cashFlowTypes.value[0]
 });
 
 </script>
 
 <style>
-.container-1 {
-  display: flex;
-  margin-right: 1em;
-}
+
 </style>

@@ -2,8 +2,6 @@
 import { computed, reactive, ref, watch, onMounted } from 'vue'
 import axios from 'axios'
 
-const cashFlows = ref([])
-
 
 
 const getcashFlow = async (start, end) => {
@@ -20,64 +18,99 @@ const getcashFlow = async (start, end) => {
   }
 };
 
-const translateDate = (dateString) => {
-  const date = new Date(dateString);
-  // console.log(typeof date);
-  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-};
+const isNegative = (number) => {
+  return number < 0;
+}
+
 
 const cashFlowGroups = ref({});
+const cashFlowGroupsTotalAmount = ref({});
 onMounted(async () => {
+  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const startDay = new Date(today)
   startDay.setDate(today.getDate() - 30)
-  today.setDate(today.getDate()+1)
+  today.setDate(today.getDate() + 1)
   const fetchedCashFlows = await getcashFlow(startDay, today);
   const groupedCashFlows = fetchedCashFlows.reduce((acc, cashFlow) => {
-    const date = new Date(cashFlow.date).toLocaleDateString();
+    const date = new Date(cashFlow.date).toLocaleDateString()
     if (!acc[date]) {
-      acc[date] = [];
+      acc[date] = []
+      cashFlowGroupsTotalAmount.value[date] = {
+        Food: 0,
+        Entertainment: 0,
+        Transportation: 0,
+        else: 0,
+        Salary: 0,
+        total: 0,
+        Allowance: 0,
+        week:""
+      }
     }
     acc[date].push(cashFlow);
-
+    cashFlowGroupsTotalAmount.value[date].total += (cashFlow.type.name === 'income' ? cashFlow.amount : -cashFlow.amount)
+    
+    // console.log(cashFlow.category.name)
+    if (cashFlow.category.name === 'Food') cashFlowGroupsTotalAmount.value[date].Food += cashFlow.amount
+    if (cashFlow.category.name === 'Entertainment') cashFlowGroupsTotalAmount.value[date].Entertainment += cashFlow.amount
+    if (cashFlow.category.name === 'Transportation') cashFlowGroupsTotalAmount.value[date].Transportation += cashFlow.amount
+    if (cashFlow.category.name === 'Salary') cashFlowGroupsTotalAmount.value[date].Salary += cashFlow.amount
+    if (cashFlow.category.name === 'Allowance') cashFlowGroupsTotalAmount.value[date].Allowance += cashFlow.amount
+    if (cashFlow.category.name === 'else') cashFlowGroupsTotalAmount.value[date].else += cashFlow.amount
+    const newDate = new Date(cashFlow.date)
+    cashFlowGroupsTotalAmount.value[date].week = daysOfWeek[newDate.getDay()]
     return acc;
   }, {});
-  
+  // console.log(cashFlowGroupsTotalAmount.value)
   const sortedCashFlowGroups = Object.entries(groupedCashFlows).sort((a, b) => {
-    return new Date(b[0]) - new Date(a[0]); 
+    return new Date(b[0]) - new Date(a[0]);
   });
 
-  
+
   cashFlowGroups.value = Object.fromEntries(sortedCashFlowGroups);
   // console.log(cashFlowGroups.value)
 });
 </script>
 
 <template>
-  <div>
+  <div style="">
     <h1>Hello I am accounting tool</h1>
 
-    <!-- <div>
-      <div v-if="cashFlows.length > 0">
-        <div v-for="item in cashFlows" :key="item._id">
-          <ul>
-            <li> {{ item.description }} {{ item.amount }} {{ item.type.name }} {{ item.category.name }} {{
-              translateDate(item.date) }}</li>
+    <div class="row">
+      <div v-for="(cashFlows, date) in cashFlowGroups" :key="date" class="card border-dark m-3" style="width: 18rem;">
+        <div class="card-header bg-transparent border-success">
+          <p class="fs-2 mb-0" :class="{ 'text-success': !isNegative(cashFlowGroupsTotalAmount[date].total), 'text-danger': isNegative(cashFlowGroupsTotalAmount[date].total) }">
+            {{ cashFlowGroupsTotalAmount[date].total }}
+          </p>
+        </div>
+        <div class="card-body">
+          <ul class="card-text">
+            <li v-if="cashFlowGroupsTotalAmount[date].Food !== 0" class="text-danger">
+              Food : {{ cashFlowGroupsTotalAmount[date].Food }}
+            </li>
+            <li v-if="cashFlowGroupsTotalAmount[date].Entertainment !== 0" class="text-danger">
+              Entertainment : {{ cashFlowGroupsTotalAmount[date].Entertainment }}
+            </li>
+            <li v-if="cashFlowGroupsTotalAmount[date].Transportation !== 0" class="text-danger">
+              Transportation : {{ cashFlowGroupsTotalAmount[date].Transportation }}
+            </li>
+            <li v-if="cashFlowGroupsTotalAmount[date].else !== 0" class="text-danger">
+              else : {{ cashFlowGroupsTotalAmount[date].else }}
+            </li>
+            <li v-if="cashFlowGroupsTotalAmount[date].Allowance !== 0" class="text-success">
+              Allowance : {{ cashFlowGroupsTotalAmount[date].Allowance }}
+            </li>
+            <li v-if="cashFlowGroupsTotalAmount[date].Salary !== 0" class="text-success">
+              Salary : {{ cashFlowGroupsTotalAmount[date].Salary }}
+            </li>
           </ul>
         </div>
-      </div>
-    </div> -->
-
-    <div v-for="(cashFlows, date) in cashFlowGroups" :key="date">
-      <h3>{{ date }}</h3>
-      <div v-for="item in cashFlows" :key="item._id">
-        {{ item.description }} {{ item.amount }} {{ item.type.name }} {{ item.category.name }} {{
-          translateDate(item.date) }}
+        <div class="card-footer">
+          <p class="text-end text-muted pb-0 mb-0">{{cashFlowGroupsTotalAmount[date].week }} {{ date }}</p>
+        </div>
       </div>
     </div>
-
-
   </div>
 
 </template>

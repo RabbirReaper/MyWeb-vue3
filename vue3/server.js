@@ -87,8 +87,7 @@ app.get('/getanonymousMsg', async (req, res) => {
 
 app.get('/cashFlow', async (req, res) => {
   const {start, end} = req.query;
-  console.log(start)
-  console.log(end)
+
   const cashFlows = await CashFlow.find({
     date: {
       $gte: start,
