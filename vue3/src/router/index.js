@@ -10,6 +10,7 @@ import accountingTool from "../components/accounting/index.vue"
 import accountingTool_show from "../components/accounting/show.vue"
 import accountingTool_create from "../components/accounting/create.vue"
 import accountingTool_createCategory from "../components/accounting/createCategory.vue"
+import accountingTool_showById from "../components/accounting/showById.vue"
 
 
 
@@ -59,6 +60,11 @@ const router = createRouter({
           path: 'createCategory',
           name: 'Accounting_tools_createCategory',
           component: accountingTool_createCategory
+        },
+        {
+          path: 'showDetail/:id',
+          name: 'Accounting_tools_showById',
+          component: accountingTool_showById
         },
       ]
     },

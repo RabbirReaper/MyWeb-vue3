@@ -2,7 +2,7 @@
 import { computed, reactive, ref, watch, onMounted } from 'vue'
 import axios from 'axios'
 
-
+const selectedType = ref('default')
 
 const getcashFlow = async (start, end) => {
   try {
@@ -45,12 +45,12 @@ onMounted(async () => {
         Salary: 0,
         total: 0,
         Allowance: 0,
-        week:""
+        week: ""
       }
     }
     acc[date].push(cashFlow);
     cashFlowGroupsTotalAmount.value[date].total += (cashFlow.type.name === 'income' ? cashFlow.amount : -cashFlow.amount)
-    
+
     // console.log(cashFlow.category.name)
     if (cashFlow.category.name === 'Food') cashFlowGroupsTotalAmount.value[date].Food += cashFlow.amount
     if (cashFlow.category.name === 'Entertainment') cashFlowGroupsTotalAmount.value[date].Entertainment += cashFlow.amount
@@ -69,23 +69,33 @@ onMounted(async () => {
 
 
   cashFlowGroups.value = Object.fromEntries(sortedCashFlowGroups);
-  // console.log(cashFlowGroups.value)
+  console.log(cashFlowGroups.value)
 });
 </script>
 
 <template>
-  <div style="">
-    <h1>Hello I am accounting tool</h1>
-
-    <div class="row">
+  <div class="row mt-2">
+    <h1 class="text-center fs-1">Accounting tool</h1>
+    <div class="text-center">
+      <div class="form-check form-check-inline mb-3">
+        <input class="form-check-input" type="radio" id="default" value="default" name="printType" v-model="selectedType" />
+        <label class="form-check-label" for="default">default</label>
+      </div>
+      <div class="form-check form-check-inline mb-3">
+        <input class="form-check-input" type="radio" id="Detail" value="Detail" name="printType" v-model="selectedType"/>
+        <label class="form-check-label" for="Detail">Detail</label>
+      </div>
+    </div>
+    <div class="d-grid justify-content-center" style="grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem;">
       <div v-for="(cashFlows, date) in cashFlowGroups" :key="date" class="card border-dark m-3" style="width: 18rem;">
         <div class="card-header bg-transparent border-success">
-          <p class="fs-2 mb-0" :class="{ 'text-success': !isNegative(cashFlowGroupsTotalAmount[date].total), 'text-danger': isNegative(cashFlowGroupsTotalAmount[date].total) }">
+          <p class="fs-2 mb-0"
+            :class="{ 'text-success': !isNegative(cashFlowGroupsTotalAmount[date].total), 'text-danger': isNegative(cashFlowGroupsTotalAmount[date].total) }">
             {{ cashFlowGroupsTotalAmount[date].total }}
           </p>
         </div>
         <div class="card-body">
-          <ul class="card-text">
+          <ul class="card-text" v-if="selectedType === 'default'">
             <li v-if="cashFlowGroupsTotalAmount[date].Food !== 0" class="text-danger">
               Food : {{ cashFlowGroupsTotalAmount[date].Food }}
             </li>
@@ -105,9 +115,14 @@ onMounted(async () => {
               Salary : {{ cashFlowGroupsTotalAmount[date].Salary }}
             </li>
           </ul>
+          <ul class="card-text" v-else>
+            <li v-for="cashFlow in cashFlows" :key="cashFlow._id"
+              :class="{ 'text-success': cashFlow.type.name === 'income', 'text-danger': cashFlow.type.name === 'expense' }">
+              {{ cashFlow.description }} : {{ cashFlow.amount }} </li>
+          </ul>
         </div>
         <div class="card-footer">
-          <p class="text-end text-muted pb-0 mb-0">{{cashFlowGroupsTotalAmount[date].week }} {{ date }}</p>
+          <p class="text-end text-muted pb-0 mb-0">{{ cashFlowGroupsTotalAmount[date].week }} {{ date }}</p>
         </div>
       </div>
     </div>

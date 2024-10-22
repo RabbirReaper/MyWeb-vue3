@@ -10,7 +10,7 @@ import { RouterLink } from 'vue-router';
 <template>
   <div>
     <header style="margin-top: 1em;">
-      <div class="list">
+      <div class="col">
         <RouterLink class="button-1 router-link" active-class="button-2" to="/Tool/accounting/show">show</RouterLink>
         <RouterLink class="button-1" active-class="button-2" to="/Tool/accounting/create">Creat</RouterLink>
         <RouterLink class="button-1" active-class="button-2" to="/Tool/accounting/createCategory">Category</RouterLink>

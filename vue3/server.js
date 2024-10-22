@@ -86,7 +86,7 @@ app.get('/getanonymousMsg', async (req, res) => {
 })
 
 app.get('/cashFlow', async (req, res) => {
-  const {start, end} = req.query;
+  const { start, end } = req.query;
 
   const cashFlows = await CashFlow.find({
     date: {
@@ -98,6 +98,19 @@ app.get('/cashFlow', async (req, res) => {
     .populate('category', 'name')
   res.json(cashFlows)
 })
+
+app.get('/cashFlow/:id', async (req, res) => {
+  const { id } = req.params;
+  const cashFlow = await CashFlow.findById(id)
+    .populate('type', 'name')
+    .populate('category', 'name')
+    
+    // .catch(console.log('no data'))
+  // console.log(cashFlow)
+  res.json(cashFlow)
+});
+
+
 app.get('/cashFlowType', async (req, res) => {
   const cashFlowTypes = await CashFlowType.find({});
   const formattedTypes = cashFlowTypes.map(type => ({
