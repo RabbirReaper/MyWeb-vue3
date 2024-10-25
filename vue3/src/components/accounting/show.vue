@@ -29,6 +29,7 @@ onMounted(async () => {
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  console.log(now.getFullYear(), now.getMonth(), now.getDate())
   const startDay = new Date(today)
   startDay.setDate(today.getDate() - 30)
   today.setDate(today.getDate() + 1)
@@ -45,6 +46,7 @@ onMounted(async () => {
         Salary: 0,
         total: 0,
         Allowance: 0,
+        Drink: 0,
         week: ""
       }
     }
@@ -53,6 +55,7 @@ onMounted(async () => {
 
     // console.log(cashFlow.category.name)
     if (cashFlow.category.name === 'Food') cashFlowGroupsTotalAmount.value[date].Food += cashFlow.amount
+    if (cashFlow.category.name === 'Drink') cashFlowGroupsTotalAmount.value[date].Drink += cashFlow.amount
     if (cashFlow.category.name === 'Entertainment') cashFlowGroupsTotalAmount.value[date].Entertainment += cashFlow.amount
     if (cashFlow.category.name === 'Transportation') cashFlowGroupsTotalAmount.value[date].Transportation += cashFlow.amount
     if (cashFlow.category.name === 'Salary') cashFlowGroupsTotalAmount.value[date].Salary += cashFlow.amount
@@ -78,26 +81,33 @@ onMounted(async () => {
     <h1 class="text-center fs-1">Accounting tool</h1>
     <div class="text-center">
       <div class="form-check form-check-inline mb-3">
-        <input class="form-check-input" type="radio" id="default" value="default" name="printType" v-model="selectedType" />
+        <input class="form-check-input" type="radio" id="default" value="default" name="printType"
+          v-model="selectedType" />
         <label class="form-check-label" for="default">default</label>
       </div>
       <div class="form-check form-check-inline mb-3">
-        <input class="form-check-input" type="radio" id="Detail" value="Detail" name="printType" v-model="selectedType"/>
+        <input class="form-check-input" type="radio" id="Detail" value="Detail" name="printType"
+          v-model="selectedType" />
         <label class="form-check-label" for="Detail">Detail</label>
       </div>
     </div>
-    <div class="d-grid justify-content-center" style="grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem;">
+    <div class="d-grid justify-content-center"
+      style="grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem;">
       <div v-for="(cashFlows, date) in cashFlowGroups" :key="date" class="card border-dark m-3" style="width: 18rem;">
         <div class="card-header bg-transparent border-success">
-          <p class="fs-2 mb-0"
+          <a class="fs-2 mb-0 text-decoration-none"
+            :href="'showDetail/' + date.split('/').shift() + '/' + date.split('/')[1] + '/' + date.split('/')[2]"
             :class="{ 'text-success': !isNegative(cashFlowGroupsTotalAmount[date].total), 'text-danger': isNegative(cashFlowGroupsTotalAmount[date].total) }">
             {{ cashFlowGroupsTotalAmount[date].total }}
-          </p>
+          </a>
         </div>
         <div class="card-body">
           <ul class="card-text" v-if="selectedType === 'default'">
             <li v-if="cashFlowGroupsTotalAmount[date].Food !== 0" class="text-danger">
               Food : {{ cashFlowGroupsTotalAmount[date].Food }}
+            </li>
+            <li v-if="cashFlowGroupsTotalAmount[date].Drink !== 0" class="text-danger">
+              Drink : {{ cashFlowGroupsTotalAmount[date].Drink }}
             </li>
             <li v-if="cashFlowGroupsTotalAmount[date].Entertainment !== 0" class="text-danger">
               Entertainment : {{ cashFlowGroupsTotalAmount[date].Entertainment }}

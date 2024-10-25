@@ -87,7 +87,8 @@ app.get('/getanonymousMsg', async (req, res) => {
 
 app.get('/cashFlow', async (req, res) => {
   const { start, end } = req.query;
-
+  // console.log(start)
+  // console.log(end)
   const cashFlows = await CashFlow.find({
     date: {
       $gte: start,
@@ -101,13 +102,21 @@ app.get('/cashFlow', async (req, res) => {
 
 app.get('/cashFlow/:id', async (req, res) => {
   const { id } = req.params;
-  const cashFlow = await CashFlow.findById(id)
-    .populate('type', 'name')
-    .populate('category', 'name')
-    
-    // .catch(console.log('no data'))
-  // console.log(cashFlow)
-  res.json(cashFlow)
+
+  try {
+    const cashFlow = await CashFlow.findById(id)
+      .populate('type', 'name')
+      .populate('category', 'name');
+
+    if (!cashFlow) {
+      return res.status(404).json({ error: '找不到指定的流水記錄' });
+    }
+
+    res.json(cashFlow);
+  } catch (error) {
+    // console.error(error);
+    return res.status(500).json({ error: '伺服器錯誤' });
+  }
 });
 
 

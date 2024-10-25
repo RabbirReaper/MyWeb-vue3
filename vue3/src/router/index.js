@@ -11,7 +11,7 @@ import accountingTool_show from "../components/accounting/show.vue"
 import accountingTool_create from "../components/accounting/create.vue"
 import accountingTool_createCategory from "../components/accounting/createCategory.vue"
 import accountingTool_showById from "../components/accounting/showById.vue"
-
+import accountingTool_showByDate from "../components/accounting/showByDate.vue"
 
 
 const router = createRouter({
@@ -66,6 +66,11 @@ const router = createRouter({
           name: 'Accounting_tools_showById',
           component: accountingTool_showById
         },
+        {
+          path: 'showDetail/:year/:month/:date',
+          name: 'Accounting_tools_showByDate',
+          component: accountingTool_showByDate
+        }
       ]
     },
     {
