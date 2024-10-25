@@ -17,7 +17,7 @@
 
       <div class="mb-3">
         <label for="date" class="form0label">Date</label>
-        <input type="date" class="form-control">
+        <input type="date" class="form-control" v-model="date">
       </div>
 
       <div v-if="cashFlowTypes.length > 0">
@@ -60,6 +60,7 @@ const selectedType = ref({ name: 'income' })
 const selectedCategory = ref(null)
 const description = ref("")
 const amount = ref(0)
+const date = ref(new Date().toISOString().split('T')[0])
 
 const cashFlowTypes = ref([])
 const incomeCategories = ref([])
@@ -99,7 +100,6 @@ const getexpenseCategory = async () => {
   }
 };
 const postCashFlow = async () => {
-  const date = new Date()
   const res = await axios({
     method: 'post',
     url: 'http://localhost:3000/cashFlow',
@@ -108,7 +108,7 @@ const postCashFlow = async () => {
       amount: amount.value,
       type: selectedType.value._id,
       category: selectedCategory.value,
-      date: date
+      date: date.value
     }
   }).catch((e) => {
     console.log(e)

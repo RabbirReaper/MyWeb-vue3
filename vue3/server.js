@@ -109,12 +109,12 @@ app.get('/cashFlow/:id', async (req, res) => {
       .populate('category', 'name');
 
     if (!cashFlow) {
-      return res.status(404).json({ error: '找不到指定的流水記錄' });
+      return res.status(404).json({ error: '找不到指定的cashFlow' });
     }
-
+    // console.log(good)
     res.json(cashFlow);
   } catch (error) {
-    // console.error(error);
+    console.error(error)
     return res.status(500).json({ error: '伺服器錯誤' });
   }
 });
