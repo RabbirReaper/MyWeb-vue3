@@ -3,6 +3,8 @@ import { computed, reactive, ref, watch, onMounted } from 'vue'
 import axios from 'axios'
 
 const selectedType = ref('default')
+const cashFlowGroups = ref({});
+const cashFlowGroupsTotalAmount = ref({});
 
 const getcashFlow = async (start, end) => {
   try {
@@ -23,8 +25,6 @@ const isNegative = (number) => {
 }
 
 
-const cashFlowGroups = ref({});
-const cashFlowGroupsTotalAmount = ref({});
 onMounted(async () => {
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
   const now = new Date()
@@ -47,6 +47,9 @@ onMounted(async () => {
         total: 0,
         Allowance: 0,
         Drink: 0,
+        Loan:0,
+        Bill:0,
+        Windfall:0,
         week: ""
       }
     }
@@ -58,8 +61,11 @@ onMounted(async () => {
     if (cashFlow.category.name === 'Drink') cashFlowGroupsTotalAmount.value[date].Drink += cashFlow.amount
     if (cashFlow.category.name === 'Entertainment') cashFlowGroupsTotalAmount.value[date].Entertainment += cashFlow.amount
     if (cashFlow.category.name === 'Transportation') cashFlowGroupsTotalAmount.value[date].Transportation += cashFlow.amount
+    if (cashFlow.category.name === 'Loan') cashFlowGroupsTotalAmount.value[date].Loan += cashFlow.amount
+    if (cashFlow.category.name === 'Bill') cashFlowGroupsTotalAmount.value[date].Bill += cashFlow.amount
     if (cashFlow.category.name === 'Salary') cashFlowGroupsTotalAmount.value[date].Salary += cashFlow.amount
     if (cashFlow.category.name === 'Allowance') cashFlowGroupsTotalAmount.value[date].Allowance += cashFlow.amount
+    if (cashFlow.category.name === 'Windfall') cashFlowGroupsTotalAmount.value[date].Windfall += cashFlow.amount
     if (cashFlow.category.name === 'else') cashFlowGroupsTotalAmount.value[date].else += cashFlow.amount
     const newDate = new Date(cashFlow.date)
     cashFlowGroupsTotalAmount.value[date].week = daysOfWeek[newDate.getDay()]
@@ -115,6 +121,12 @@ onMounted(async () => {
             <li v-if="cashFlowGroupsTotalAmount[date].Transportation !== 0" class="text-danger">
               Transportation : {{ cashFlowGroupsTotalAmount[date].Transportation }}
             </li>
+            <li v-if="cashFlowGroupsTotalAmount[date].Loan !== 0" class="text-danger">
+              Loan : {{ cashFlowGroupsTotalAmount[date].Loan }}
+            </li>
+            <li v-if="cashFlowGroupsTotalAmount[date].Bill !== 0" class="text-danger">
+              Bill : {{ cashFlowGroupsTotalAmount[date].Bill }}
+            </li>
             <li v-if="cashFlowGroupsTotalAmount[date].else !== 0" class="text-danger">
               else : {{ cashFlowGroupsTotalAmount[date].else }}
             </li>
@@ -123,6 +135,9 @@ onMounted(async () => {
             </li>
             <li v-if="cashFlowGroupsTotalAmount[date].Salary !== 0" class="text-success">
               Salary : {{ cashFlowGroupsTotalAmount[date].Salary }}
+            </li>
+            <li v-if="cashFlowGroupsTotalAmount[date].Windfall !== 0" class="text-success">
+              Windfall : {{ cashFlowGroupsTotalAmount[date].Windfall }}
             </li>
           </ul>
           <ul class="card-text" v-else>

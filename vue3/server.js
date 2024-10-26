@@ -119,6 +119,19 @@ app.get('/cashFlow/:id', async (req, res) => {
   }
 });
 
+app.put('/cashFlow/:id', async (req, res,) => {
+  const { id } = req.params;
+  const updatedCashFlow  = await CashFlow.findByIdAndUpdate(id, req.body);
+  res.status(200).send({ message: 'Update success' });
+});
+
+
+app.delete('/cashFlow/:id', async (req, res) => {
+  const { id } = req.params;
+  await CashFlow.findByIdAndDelete(id);
+  res.status(200).send({ message: 'Delet success' });
+});
+
 
 app.get('/cashFlowType', async (req, res) => {
   const cashFlowTypes = await CashFlowType.find({});

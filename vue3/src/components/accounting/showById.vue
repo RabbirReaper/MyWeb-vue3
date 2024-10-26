@@ -1,15 +1,19 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 
 
 const route = useRoute();
+const router = useRouter()
 const id = route.params.id;
 const cashFlow = ref({})
 
+const redirect = () => {
+  router.push({ path: '/Tool/accounting/show' })
+}
 
-const getcashFlowByid = async () => {
+const getCashFlowByid = async () => {
   try {
     const response = await axios({
       method: 'get',
@@ -21,11 +25,40 @@ const getcashFlowByid = async () => {
   }
 };
 
+
+
+const deleteCashFlowById = async () => {
+  try {
+    await axios({
+      method: 'delete',
+      url: `http://localhost:3000/cashFlow/${id}`,
+    })
+    router.push({ path: '/Tool/accounting/show' })
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      router.push({ path: '/Tool/accounting/show' })
+    } else {
+      ElMessage.error('刪除失敗：' + error.message)
+    }
+  }
+};
+
+const putCashFlowByid = async () => {
+  const res = await axios({
+    method: 'put',
+    url: `http://localhost:3000/cashFlow/${id}`,
+    data: cashFlow.value
+  }).catch((e) => {
+    console.log(e)
+  })
+  router.push({ path: '/Tool/accounting/show' })
+}
+
 const cashFlowTypes = ref([])
 const incomeCategories = ref([])
 const expenseCategories = ref([])
 
-const getcashFlowType = async () => {
+const getCashFlowType = async () => {
   try {
     const response = await axios({
       method: 'get',
@@ -36,7 +69,7 @@ const getcashFlowType = async () => {
     console.error('Error fetching cash flows:', error);
   }
 };
-const getincomeCategory = async () => {
+const getIncomeCategory = async () => {
   try {
     const response = await axios({
       method: 'get',
@@ -47,7 +80,7 @@ const getincomeCategory = async () => {
     console.error('Error fetching cash flows:', error);
   }
 };
-const getexpenseCategory = async () => {
+const getExpenseCategory = async () => {
   try {
     const response = await axios({
       method: 'get',
@@ -61,10 +94,10 @@ const getexpenseCategory = async () => {
 
 
 onMounted(async () => {
-  await getcashFlowType()
-  await getincomeCategory()
-  await getexpenseCategory()
-  cashFlow.value = await getcashFlowByid()
+  await getCashFlowType()
+  await getIncomeCategory()
+  await getExpenseCategory()
+  cashFlow.value = await getCashFlowByid()
   cashFlow.value.date = new Date(cashFlow.value.date).toISOString().split('T')[0];
   console.log(cashFlow.value)
 })
@@ -105,7 +138,7 @@ onMounted(async () => {
 
       <div v-if="cashFlow.type.name === 'income' && incomeCategories.length > 0">
         <div class="form-check form-check-inline mb-3" v-for="item in incomeCategories" :key="item._id">
-          <input class="form-check-input" type="radio" :id="item._id" :value="item._id" v-model="cashFlow.category._id"
+          <input class="form-check-input" type="radio" :id="item._id" :value="item" v-model="cashFlow.category"
             name="incomeCategory" />
           <label class="form-check-label" :for="item._id">{{ item.name }}</label>
         </div>
@@ -113,17 +146,20 @@ onMounted(async () => {
 
       <div v-if="cashFlow.type.name === 'expense' && expenseCategories.length > 0">
         <div class="form-check form-check-inline mb-3" v-for="item in expenseCategories" :key="item._id">
-          <input class="form-check-input" type="radio" :id="item._id" :value="item._id" v-model="cashFlow.category._id"
+          <input class="form-check-input" type="radio" :id="item._id" :value="item" v-model="cashFlow.category"
             name="expenseCategory" />
           <label class="form-check-label" :for="item._id">{{ item.name }}</label>
         </div>
       </div>
       <div class="row mb-3">
         <div class="col-auto">
-          <button class="btn btn-primary">Update</button>
+          <button class="btn btn-outline-primary" @click="putCashFlowByid">Update</button>
         </div>
         <div class="col-auto">
-          <button class="btn btn-danger">Delete</button>
+          <button class="btn btn-outline-danger" @click="deleteCashFlowById">Delete</button>
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-outline-info" @click="redirect">redirect</button>
         </div>
       </div>
 

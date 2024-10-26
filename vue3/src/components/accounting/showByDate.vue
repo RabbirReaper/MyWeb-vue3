@@ -4,7 +4,7 @@
     <div v-if="cashFlows" class="col-6 offset-3">
       <ul>
         <li v-for="cashFlow in cashFlows" :key="cashFlow._id">
-          <router-link class="text-decoration-none text-decoration-none" :class="{ 'text-success': cashFlow.type.name === 'income', 'text-danger': cashFlow.type.name === 'expense'}" :to="{ path: `../../${cashFlow._id}` }">{{ cashFlow.description }} : {{ cashFlow.amount }} {{ cashFlow.type.name }}</router-link>
+          <router-link class="text-decoration-none text-decoration-none" :class="{ 'text-success': cashFlow.type.name === 'income', 'text-danger': cashFlow.type.name === 'expense'}" :to="{ path: `../../${cashFlow._id}` }">{{ cashFlow.description }} : {{ cashFlow.amount }} {{ cashFlow.category.name }}</router-link>
         </li>
       </ul>
     </div>

@@ -54,8 +54,10 @@
 
 <script setup>
 import { computed, reactive, ref, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 
+const router = useRouter()
 const selectedType = ref({ name: 'income' })
 const selectedCategory = ref(null)
 const description = ref("")
@@ -113,6 +115,7 @@ const postCashFlow = async () => {
   }).catch((e) => {
     console.log(e)
   })
+  router.push({ path: '/Tool/accounting/show' })
 }
 
 onMounted(async () => {
