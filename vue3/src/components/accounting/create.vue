@@ -4,7 +4,7 @@
     <div class="col-6 offset-3 validated-form">
       <div class="mb-3">
         <label for="description" class="form-label">Description</label>
-        <input class="form-control" type="text" id="description" v-model="description">
+        <input class="form-control" type="text" id="description" v-model="description" required>
       </div>
 
       <div class="mb-3">

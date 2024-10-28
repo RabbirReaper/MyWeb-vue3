@@ -160,7 +160,7 @@ app.get('/incomeCategory', async (req, res) => {
 
 app.post('/cashFlow', async (req, res, next) => {
   const newCashFlow = new CashFlow(req.body);
-  await newCashFlow.save();
+  await newCashFlow.save().catch(err => console.log(err));
   res.status(201).send({ message: 'Cash flow created successfully', data: newCashFlow });
   next()
 })
