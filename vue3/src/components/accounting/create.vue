@@ -1,55 +1,116 @@
 <template>
-  <div class="row">
+  <form class="row needs-validation" @submit.prevent="handleSubmit" novalidate ref="form">
     <h1 class="text-center fs-1">New account</h1>
     <div class="col-6 offset-3 validated-form">
       <div class="mb-3">
         <label for="description" class="form-label">Description</label>
-        <input class="form-control" type="text" id="description" v-model="description" required>
+        <input 
+          class="form-control" 
+          :class="{ 'is-invalid': errors.description }"
+          type="text" 
+          id="description" 
+          v-model="description" 
+          required
+        >
+        <div class="invalid-feedback">
+          Please provide a description.
+        </div>
       </div>
 
       <div class="mb-3">
-        <label class="form-label" for="amount">Amount</label>
-        <div class="input-group">
+        <label class="form-label" for="amount">Money</label>
+        <div class="input-group has-validation">
           <span class="input-group-text" id="price-label">$</span>
-          <input class="form-control" type="number" id="amount" v-model="amount">
+          <input 
+            class="form-control" 
+            :class="{ 'is-invalid': errors.amount }"
+            type="number" 
+            id="amount" 
+            v-model="amount" 
+            required
+          >
+          <div class="invalid-feedback">
+            Please enter a valid amount.
+          </div>
         </div>
       </div>
 
       <div class="mb-3">
-        <label for="date" class="form0label">Date</label>
-        <input type="date" class="form-control" v-model="date">
-      </div>
-
-      <div v-if="cashFlowTypes.length > 0">
-        <div class="form-check form-check-inline mb-3" v-for="item in cashFlowTypes" :key="item._id">
-          <input class="form-check-input" type="radio" :id="item._id" :value="item" v-model="selectedType"
-            name="cashFlowType" />
-          <label class="form-check-label" :for="item._id">{{ item.name }}</label>
+        <label for="date" class="form-label">Date</label>
+        <input 
+          type="date" 
+          class="form-control"
+          :class="{ 'is-invalid': errors.date }" 
+          v-model="date" 
+          required
+        >
+        <div class="invalid-feedback">
+          Please select a date.
         </div>
       </div>
 
-
-
-      <div v-if="selectedType.name === 'income' && incomeCategories.length > 0">
-        <div class="form-check form-check-inline mb-3" v-for="item in incomeCategories" :key="item._id">
-          <input class="form-check-input" type="radio" :id="item._id" :value="item._id" v-model="selectedCategory"
-            name="incomeCategory" />
+      <div v-if="cashFlowTypes.length > 0" class="mb-3">
+        <div class="form-check form-check-inline" v-for="item in cashFlowTypes" :key="item._id">
+          <input 
+            class="form-check-input"
+            :class="{ 'is-invalid': errors.type }" 
+            type="radio" 
+            :id="item._id" 
+            :value="item" 
+            v-model="selectedType"
+            name="cashFlowType" 
+            required
+          />
           <label class="form-check-label" :for="item._id">{{ item.name }}</label>
+        </div>
+        <div class="invalid-feedback d-block" v-if="errors.type">
+          Please select a type.
         </div>
       </div>
 
-      <div v-if="selectedType.name === 'expense' && expenseCategories.length > 0">
-        <div class="form-check form-check-inline mb-3" v-for="item in expenseCategories" :key="item._id">
-          <input class="form-check-input" type="radio" :id="item._id" :value="item._id" v-model="selectedCategory"
-            name="expenseCategory" />
+      <div v-if="selectedType.name === 'income' && incomeCategories.length > 0" class="mb-3">
+        <div class="form-check form-check-inline" v-for="item in incomeCategories" :key="item._id">
+          <input 
+            class="form-check-input"
+            :class="{ 'is-invalid': errors.category }" 
+            type="radio" 
+            :id="item._id" 
+            :value="item._id" 
+            v-model="selectedCategory"
+            name="incomeCategory" 
+            required
+          />
           <label class="form-check-label" :for="item._id">{{ item.name }}</label>
         </div>
+        <div class="invalid-feedback d-block" v-if="errors.category">
+          Please select a category.
+        </div>
       </div>
+
+      <div v-if="selectedType.name === 'expense' && expenseCategories.length > 0" class="mb-3">
+        <div class="form-check form-check-inline" v-for="item in expenseCategories" :key="item._id">
+          <input 
+            class="form-check-input"
+            :class="{ 'is-invalid': errors.category }" 
+            type="radio" 
+            :id="item._id" 
+            :value="item._id" 
+            v-model="selectedCategory"
+            name="expenseCategory" 
+            required
+          />
+          <label class="form-check-label" :for="item._id">{{ item.name }}</label>
+        </div>
+        <div class="invalid-feedback d-block" v-if="errors.category">
+          Please select a category.
+        </div>
+      </div>
+
       <div class="mb-3">
-        <button class="btn btn-primary " @click="postCashFlow">Submit</button>
+        <button class="btn btn-primary" type="submit">Submit</button>
       </div>
     </div>
-  </div>
+  </form>
 </template>
 
 <script setup>
@@ -58,15 +119,77 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 const router = useRouter()
+const form = ref(null)
 const selectedType = ref({ name: 'income' })
 const selectedCategory = ref(null)
 const description = ref("")
 const amount = ref(0)
 const date = ref(new Date().toISOString().split('T')[0])
 
+const errors = reactive({
+  description: false,
+  amount: false,
+  date: false,
+  type: false,
+  category: false
+})
+
 const cashFlowTypes = ref([])
 const incomeCategories = ref([])
 const expenseCategories = ref([])
+
+const validateForm = () => {
+  let isValid = true
+  
+  // Reset all errors
+  Object.keys(errors).forEach(key => errors[key] = false)
+  
+  // Validate description
+  if (!description.value.trim()) {
+    errors.description = true
+    isValid = false
+  }
+  
+  // Validate amount
+  if (!amount.value || amount.value <= 0) {
+    errors.amount = true
+    isValid = false
+  }
+  
+  // Validate date
+  if (!date.value) {
+    errors.date = true
+    isValid = false
+  }
+  
+  // Validate type
+  if (!selectedType.value || !selectedType.value._id) {
+    errors.type = true
+    isValid = false
+  }
+  
+  // Validate category
+  if (!selectedCategory.value) {
+    errors.category = true
+    isValid = false
+  }
+  
+  return isValid
+}
+
+const handleSubmit = async (event) => {
+  if (!validateForm()) {
+    event.stopPropagation()
+    return
+  }
+
+  try {
+    await postCashFlow()
+    router.push({ path: '/Tool/accounting/show' })
+  } catch (error) {
+    console.error('Error submitting form:', error)
+  }
+}
 
 const getcashFlowType = async () => {
   try {
@@ -79,6 +202,7 @@ const getcashFlowType = async () => {
     console.error('Error fetching cash flows:', error);
   }
 };
+
 const getincomeCategory = async () => {
   try {
     const response = await axios({
@@ -90,6 +214,7 @@ const getincomeCategory = async () => {
     console.error('Error fetching cash flows:', error);
   }
 };
+
 const getexpenseCategory = async () => {
   try {
     const response = await axios({
@@ -101,8 +226,9 @@ const getexpenseCategory = async () => {
     console.error('Error fetching cash flows:', error);
   }
 };
+
 const postCashFlow = async () => {
-  const res = await axios({
+  return await axios({
     method: 'post',
     url: 'http://localhost:3000/cashFlow',
     data: {
@@ -112,10 +238,7 @@ const postCashFlow = async () => {
       category: selectedCategory.value,
       date: date.value
     }
-  }).catch((e) => {
-    console.log(e)
   })
-  router.push({ path: '/Tool/accounting/show' })
 }
 
 onMounted(async () => {
@@ -124,12 +247,8 @@ onMounted(async () => {
   await getexpenseCategory()
   selectedType.value = cashFlowTypes.value[0]
 });
-
 </script>
 
 <style>
-.container-1 {
-  display: flex;
-  margin-right: 1em;
-}
+
 </style>

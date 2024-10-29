@@ -29,7 +29,7 @@ onMounted(async () => {
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  console.log(now.getFullYear(), now.getMonth(), now.getDate())
+  // console.log(now.getFullYear(), now.getMonth(), now.getDate())
   const startDay = new Date(today)
   startDay.setDate(today.getDate() - 30)
   today.setDate(today.getDate() + 1)
@@ -78,7 +78,7 @@ onMounted(async () => {
 
 
   cashFlowGroups.value = Object.fromEntries(sortedCashFlowGroups);
-  console.log(cashFlowGroups.value)
+  // console.log(cashFlowGroups.value)
 });
 </script>
 
