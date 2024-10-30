@@ -1,5 +1,5 @@
 <template>
-  <form class="row needs-validation" @submit.prevent="handleSubmit" novalidate ref="form">
+  <form class="row needs-validation" @submit.prevent="handleSubmit" novalidate >
     <h1 class="text-center fs-1">New account</h1>
     <div class="col-6 offset-3 validated-form">
       <div class="mb-3">
@@ -87,7 +87,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 const router = useRouter()
-const form = ref(null)
+// const form = ref(null)
 const selectedType = ref({ _id: '670675c7b17c230881c73bfb', name: 'expense' })
 const selectedCategory = ref('6706904a94b6f4f2e46188bf')
 const description = ref("")

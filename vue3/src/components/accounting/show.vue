@@ -5,7 +5,31 @@ import axios from 'axios'
 const selectedType = ref('default')
 const cashFlowGroups = ref({});
 const cashFlowGroupsTotalAmount = ref({});
-
+const cashFlowGroupsByCategories = ref({
+  Food: [],
+  Entertainment: [],
+  Transportation: [],
+  else: [],
+  Salary: [],
+  Allowance: [],
+  Drink: [],
+  Loan: [],
+  Bill: [],
+  Windfall: [],
+})
+const cashFlowGroupsByCategoriesTotalAmount = ref({
+  Food: 0,
+  Entertainment: 0,
+  Transportation: 0,
+  else: 0,
+  Salary: 0,
+  total: 0,
+  Allowance: 0,
+  Drink: 0,
+  Loan: 0,
+  Bill: 0,
+  Windfall: 0,
+});
 const getcashFlow = async (start, end) => {
   try {
     const response = await axios({
@@ -47,16 +71,16 @@ onMounted(async () => {
         total: 0,
         Allowance: 0,
         Drink: 0,
-        Loan:0,
-        Bill:0,
-        Windfall:0,
+        Loan: 0,
+        Bill: 0,
+        Windfall: 0,
         week: ""
       }
     }
     acc[date].push(cashFlow);
     cashFlowGroupsTotalAmount.value[date].total += (cashFlow.type.name === 'income' ? cashFlow.amount : -cashFlow.amount)
-
-    // console.log(cashFlow.category.name)
+    cashFlowGroupsByCategories.value[cashFlow.category.name].push(cashFlow)
+    cashFlowGroupsByCategoriesTotalAmount.value[cashFlow.category.name] += cashFlow.amount
     if (cashFlow.category.name === 'Food') cashFlowGroupsTotalAmount.value[date].Food += cashFlow.amount
     if (cashFlow.category.name === 'Drink') cashFlowGroupsTotalAmount.value[date].Drink += cashFlow.amount
     if (cashFlow.category.name === 'Entertainment') cashFlowGroupsTotalAmount.value[date].Entertainment += cashFlow.amount
@@ -75,8 +99,15 @@ onMounted(async () => {
   const sortedCashFlowGroups = Object.entries(groupedCashFlows).sort((a, b) => {
     return new Date(b[0]) - new Date(a[0]);
   });
+  const sortedEntries = Object.entries(cashFlowGroupsByCategories.value)
+    .sort((a, b) => {
+      const totalA = cashFlowGroupsByCategoriesTotalAmount.value[a[0]];
+      const totalB = cashFlowGroupsByCategoriesTotalAmount.value[b[0]];
+      return totalB - totalA; // 由小到大排序，若要大到小，則使用 totalB - totalA
+    });
 
-
+  cashFlowGroupsByCategories.value = Object.fromEntries(sortedEntries);
+  console.log(cashFlowGroupsByCategories.value)
   cashFlowGroups.value = Object.fromEntries(sortedCashFlowGroups);
   // console.log(cashFlowGroups.value)
 });
@@ -96,8 +127,13 @@ onMounted(async () => {
           v-model="selectedType" />
         <label class="form-check-label" for="Detail">Detail</label>
       </div>
+      <div class="form-check form-check-inline mb-3">
+        <input class="form-check-input" type="radio" id="Category" value="Category" name="printType"
+          v-model="selectedType" />
+        <label class="form-check-label" for="Category">Category</label>
+      </div>
     </div>
-    <div class="d-grid justify-content-center"
+    <div v-if="selectedType === 'default' || selectedType === 'Detail'" class="d-grid justify-content-center"
       style="grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem;">
       <div v-for="(cashFlows, date) in cashFlowGroups" :key="date" class="card border-dark m-3" style="width: 18rem;">
         <div class="card-header bg-transparent border-success">
@@ -140,7 +176,7 @@ onMounted(async () => {
               Windfall : {{ cashFlowGroupsTotalAmount[date].Windfall }}
             </li>
           </ul>
-          <ul class="card-text" v-else>
+          <ul class="card-text" v-else-if="selectedType === 'Detail'">
             <li v-for="cashFlow in cashFlows" :key="cashFlow._id"
               :class="{ 'text-success': cashFlow.type.name === 'income', 'text-danger': cashFlow.type.name === 'expense' }">
               {{ cashFlow.description }} : {{ cashFlow.amount }} </li>
@@ -148,6 +184,28 @@ onMounted(async () => {
         </div>
         <div class="card-footer">
           <p class="text-end text-muted pb-0 mb-0">{{ cashFlowGroupsTotalAmount[date].week }} {{ date }}</p>
+        </div>
+      </div>
+    </div>
+    <div v-else class="d-grid justify-content-center"
+      style="grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem;">
+      <div v-for="(cashFlows, key) in cashFlowGroupsByCategories" :key="key" class="card border-dark m-3"
+        style="width: 18rem;">
+        <div class="card-header bg-transparent border-success">
+          <p class="fs-2 mb-0 text-decoration-none " :class="{
+            'text-success': ['Allowance', 'Windfall', 'Salary'].includes(key),
+            'text-danger': !['Allowance', 'Windfall', 'Salary'].includes(key)
+          }">
+            {{ cashFlowGroupsByCategoriesTotalAmount[key] }}
+          </p>
+        </div>
+        <!-- <div class="card-body">
+          <ul class="card-text">
+            <li v-for="cashFlow in cashFlows" :key="cashFlow._id">{{ cashFlow.description }} : {{ cashFlow.amount }}</li>
+          </ul>
+        </div>         -->
+        <div class="card-footer">
+          <p class="text-end text-muted pb-0 mb-0">{{ key }}</p>
         </div>
       </div>
     </div>
