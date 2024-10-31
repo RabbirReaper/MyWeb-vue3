@@ -119,6 +119,25 @@ app.get('/cashFlow/:id', async (req, res) => {
   }
 });
 
+app.get('/cashFlow/category/:categoryId', async (req, res) => {
+  const { categoryId } = req.params;
+
+  try {
+    const cashFlows = await CashFlow.find({ category: categoryId })
+      .populate('type', 'name')
+      .populate('category', 'name');
+
+    if (!cashFlows.length) {
+      return res.status(404).json({ error: '找不到指定的分類' });
+    }
+
+    res.json(cashFlows);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: '伺服器錯誤' });
+  }
+});
+
 app.put('/cashFlow/:id', async (req, res,) => {
   const { id } = req.params;
   const updatedCashFlow  = await CashFlow.findByIdAndUpdate(id, req.body);
