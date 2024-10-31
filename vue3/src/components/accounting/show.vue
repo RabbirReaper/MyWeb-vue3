@@ -23,13 +23,13 @@ const cashFlowGroupsByCategoriesTotalAmount = ref({
   Transportation: 0,
   else: 0,
   Salary: 0,
-  total: 0,
   Allowance: 0,
   Drink: 0,
   Loan: 0,
   Bill: 0,
   Windfall: 0,
 });
+
 const getcashFlow = async (start, end) => {
   try {
     const response = await axios({
@@ -199,11 +199,7 @@ onMounted(async () => {
             {{ cashFlowGroupsByCategoriesTotalAmount[key] }}
           </p>
         </div>
-        <!-- <div class="card-body">
-          <ul class="card-text">
-            <li v-for="cashFlow in cashFlows" :key="cashFlow._id">{{ cashFlow.description }} : {{ cashFlow.amount }}</li>
-          </ul>
-        </div>         -->
+    
         <div class="card-footer">
           <p class="text-end text-muted pb-0 mb-0">{{ key }}</p>
         </div>
