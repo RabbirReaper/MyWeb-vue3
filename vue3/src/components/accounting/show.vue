@@ -1,6 +1,8 @@
 <script setup>
 import { computed, reactive, ref, watch, onMounted } from 'vue'
 import axios from 'axios'
+import chartShow from './chartShow.vue';
+
 
 const selectedType = ref('default')
 const cashFlows = ref([])
@@ -20,7 +22,6 @@ const sortedCashFlowsGroupedByDate = computed(() => {
 const sortedCashFlowsGroupedByCategory = computed(() => {
   return Object.fromEntries(Object.entries(cashFlowsGroupedByCategory)
     .sort((a, b) => {
-      console.log(a)
       return b[1].total - a[1].total; // 由小到大排序，若要大到小，則使用 totalB - totalA
     })
   )
@@ -56,6 +57,8 @@ const getcashFlow = async (start, end) => {
       method: 'get',
       url: `http://localhost:3000/cashFlow?start=${start}&end=${end}`,
     });
+    console.log(start)
+    console.log(end)
     // console.log(response.data)
     // cashFlows.value = response.data;
     return response.data
@@ -111,6 +114,7 @@ const isNegative = (number) => {
   return number < 0;
 }
 
+
 onMounted(async () => {
   let today = new Date()
   today = new Date(today.getFullYear(), today.getMonth(), today.getDate())
@@ -127,8 +131,9 @@ onMounted(async () => {
     addCashFlowInCategory(cashFlow.type.name, cashFlow.category.name, index)
   });
 
-  console.log(cashFlowsGroupedByDate)
 })
+
+
 </script>
 
 <template>
@@ -149,6 +154,11 @@ onMounted(async () => {
         <input class="form-check-input" type="radio" id="Category" value="Category" name="printType"
           v-model="selectedType" />
         <label class="form-check-label" for="Category">Category</label>
+      </div>
+      <div class="form-check form-check-inline mb-3">
+        <input class="form-check-input" type="radio" id="ChartShow" value="ChartShow" name="printType"
+          v-model="selectedType" />
+        <label class="form-check-label" for="ChartShow">ChartShow</label>
       </div>
     </div>
 
@@ -182,13 +192,14 @@ onMounted(async () => {
               {{ category }} : {{ categoriesCashFlow.total }} </li>
           </ul>
         </div>
-        
+
         <div class="card-footer">
           <p class="text-end text-muted pb-0 mb-0">{{ dateCashFlow.week }} {{ date }}</p>
         </div>
       </div>
     </div>
-    <div v-else class="d-grid justify-content-center"
+
+    <div v-else-if="selectedType == 'Category'" class="d-grid justify-content-center"
       style="grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem;">
       <div v-for="(categoryCashFlow, catrgory) in sortedCashFlowsGroupedByCategory" :key="catrgory"
         class="card border-dark m-3" style="width: 18rem;">
@@ -205,6 +216,11 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+
+    <div v-else>
+      <chartShow :cashFlowsGroupedByCategory="cashFlowsGroupedByCategory" />
+    </div>
+
   </div>
 </template>
 

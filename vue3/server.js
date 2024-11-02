@@ -86,19 +86,33 @@ app.get('/getanonymousMsg', async (req, res) => {
 })
 
 app.get('/cashFlow', async (req, res) => {
-  const { start, end } = req.query;
-  // console.log(start)
-  // console.log(end)
-  const cashFlows = await CashFlow.find({
+  const { start, end, category } = req.query;
+  
+  // 建立查詢條件物件
+  const queryConditions = {
     date: {
       $gte: start,
       $lt: end
     }
-  })
-    .populate('type', 'name')
-    .populate('category', 'name')
-  res.json(cashFlows)
-})
+  };
+
+  // 如果有提供 category 查詢參數，則添加到查詢條件中
+  if (category) {
+    queryConditions.category = category;
+  }
+
+  try {
+    const cashFlows = await CashFlow.find(queryConditions)
+      .populate('type', 'name')
+      .populate('category', 'name');
+      
+    res.json(cashFlows);
+  } catch (error) {
+    console.error('Error fetching cash flows:', error);
+    res.status(500).json({ error: 'Failed to fetch cash flows' });
+  }
+});
+
 
 app.get('/cashFlow/:id', async (req, res) => {
   const { id } = req.params;

@@ -13,7 +13,6 @@ import accountingTool_createCategory from "../components/accounting/createCatego
 import accountingTool_showById from "../components/accounting/showById.vue"
 import accountingTool_showByDate from "../components/accounting/showByDate.vue"
 
-
 const router = createRouter({
   history:createWebHistory (import.meta.env.BASE_URL),
   routes:[
