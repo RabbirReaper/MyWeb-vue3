@@ -2,7 +2,7 @@
 import { computed, reactive, ref, watch, onMounted } from 'vue'
 import axios from 'axios'
 import chartShow from './chartShow.vue';
-
+import showByCategory from './showByCategory.vue'
 
 const selectedType = ref('default')
 const cashFlows = ref([])
@@ -57,10 +57,8 @@ const getcashFlow = async (start, end) => {
       method: 'get',
       url: `http://localhost:3000/cashFlow?start=${start}&end=${end}`,
     });
-    console.log(start)
-    console.log(end)
-    // console.log(response.data)
-    // cashFlows.value = response.data;
+    // console.log(start)
+    // console.log(end)
     return response.data
   } catch (error) {
     console.error('Error fetching cash flows:', error);
@@ -130,6 +128,7 @@ onMounted(async () => {
     addCashFlowInDate(daysOfWeek[new Date(cashFlow.date).getDay()], new Date(cashFlow.date).toLocaleDateString(), cashFlow.type.name, cashFlow.category.name, index)
     addCashFlowInCategory(cashFlow.type.name, cashFlow.category.name, index)
   });
+  // console.log(sortedCashFlowsGroupedByCategory.value)
 
 })
 
@@ -201,24 +200,15 @@ onMounted(async () => {
 
     <div v-else-if="selectedType == 'Category'" class="d-grid justify-content-center"
       style="grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem;">
-      <div v-for="(categoryCashFlow, catrgory) in sortedCashFlowsGroupedByCategory" :key="catrgory"
-        class="card border-dark m-3" style="width: 18rem;">
-        <div class="card-header bg-transparent border-success">
-          <p class="fs-2 mb-0 text-decoration-none " :class="{
-            'text-success': categoryCashFlow.type === 'income',
-            'text-danger': categoryCashFlow.type === 'expense'
-          }">
-            {{ categoryCashFlow.total }}
-          </p>
-        </div>
-        <div class="card-footer">
-          <p class="text-end text-muted pb-0 mb-0">{{ catrgory }}</p>
-        </div>
-      </div>
+
+      <showByCategory :sortedCashFlowsGroupedByCategory="sortedCashFlowsGroupedByCategory" :cashFlows="cashFlows" />
+
+
     </div>
 
     <div v-else>
       <chartShow :cashFlowsGroupedByCategory="cashFlowsGroupedByCategory" />
+
     </div>
 
   </div>

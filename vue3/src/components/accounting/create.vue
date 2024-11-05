@@ -1,5 +1,5 @@
 <template>
-  <form class="row needs-validation" @submit.prevent="handleSubmit" novalidate >
+  <form class="row needs-validation" @submit.prevent="handleSubmit" novalidate>
     <h1 class="text-center fs-1">New account</h1>
     <div class="col-6 offset-3 validated-form">
       <div class="mb-3">
@@ -112,7 +112,8 @@ const validateField = (field) => {
 
   switch (field) {
     case 'description':
-      if (!description.value.trim()) {
+      description.value = description.value.trim()
+      if (!description.value) {
         errors.description = true
       }
       break
