@@ -214,17 +214,28 @@ const expenseChartData = computed(() => ({
 }))
 
 // 新增：支出收入比例環形圖數據
-const expenseRatioData = computed(() => ({
-  labels: ['支出', '剩餘'],
-  datasets: [{
-    data: [
-      Number(expenseRatio.value),
-      Math.max(0, 100 - Number(expenseRatio.value))
-    ],
-    backgroundColor: ['#FF6384', '#36A2EB'],
-    borderWidth: 1
-  }]
-}))
+const expenseRatioData = computed(() => {
+  if (totalIncome.value === 0) {
+    return {
+      labels: ['支出', '收入'],
+      datasets: [{
+        data: [100, 0],  // 當收入為0時，顯示100%支出
+        backgroundColor: ['#FF6384', '#36A2EB'],
+        borderWidth: 1
+      }]
+    }
+  }
+
+  const ratio = Math.min(Number(expenseRatio.value), 100)  // 限制最大顯示比例為100%
+  return {
+    labels: ['支出', '剩餘'],
+    datasets: [{
+      data: [ratio, Math.max(0, 100 - ratio)],
+      backgroundColor: ['#FF6384', '#36A2EB'],
+      borderWidth: 1
+    }]
+  }
+})
 
 // 原有的圖表配置
 const chartOptions = {
@@ -256,6 +267,9 @@ const expenseRatioOptions = {
     tooltip: {
       callbacks: {
         label: function (context) {
+          if (totalIncome.value === 0) {
+            return context.label === '支出' ? '支出: ∞%' : '收入: 0%';
+          }
           return `${context.label}: ${context.raw}%`;
         }
       }
@@ -265,7 +279,6 @@ const expenseRatioOptions = {
 </script>
 
 <style scoped>
-
 .table {
   font-size: 0.9rem;
 }
