@@ -10,7 +10,12 @@ const cashFlowsGroupedByDate = reactive({});
 const incomeCategories = ref([])
 const expenseCategories = ref([])
 const cashFlowsGroupedByCategory = reactive({});
+
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+const selectedMonth = ref(0)
+const dataRange = ref({})
+const today = ref()
+
 
 const sortedCashFlowsGroupedByDate = computed(() => {
   return Object.fromEntries(
@@ -113,14 +118,55 @@ const isNegative = (number) => {
 }
 
 
-onMounted(async () => {
-  let today = new Date()
-  today = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-  const startDay = new Date(today)
-  startDay.setDate(today.getDate() - 30)
-  today.setDate(today.getDate() + 1)
-  cashFlows.value = await getcashFlow(startDay, today);
+const formatDate = (date, isEndDate = false) => {
+  // 如果是結束日期，顯示時減一天
+  const displayDate = isEndDate
+    ? new Date(date.getTime() - 24 * 60 * 60 * 1000)
+    : date;
 
+  return {
+    formatted: displayDate.toLocaleString('zh-TW', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }),
+    raw: date // 保留原始日期用於數據查詢
+  };
+};
+
+// 更新日期範圍的函數
+const updateDateRange = (baseDate) => {
+  const tenthOfMonth = new Date(baseDate.getFullYear(), baseDate.getMonth(), 10)
+
+  if (baseDate.getDate() >= 10) {
+    dataRange.value.start = formatDate(new Date(baseDate.getFullYear(), baseDate.getMonth(), 10))
+    dataRange.value.end = formatDate(new Date(baseDate.getFullYear(), baseDate.getMonth() + 1, 10), true)
+  } else {
+    dataRange.value.start = formatDate(new Date(baseDate.getFullYear(), baseDate.getMonth() - 1, 10))
+    dataRange.value.end = formatDate(new Date(baseDate.getFullYear(), baseDate.getMonth(), 10), true)
+  }
+}
+
+const initCashFlowData = () => {
+  // 重置 ref 類型資料
+  cashFlows.value = []
+  incomeCategories.value = []
+  expenseCategories.value = []
+
+  // 重置 reactive 物件
+  Object.keys(cashFlowsGroupedByDate).forEach(key => {
+    delete cashFlowsGroupedByDate[key]
+  })
+
+  Object.keys(cashFlowsGroupedByCategory).forEach(key => {
+    delete cashFlowsGroupedByCategory[key]
+  })
+}
+
+const updateCashFlowData = async (start, end) => {
+  initCashFlowData()
+  
+  cashFlows.value = await getcashFlow(start, end);
   await getIncomeCategory()
   await getExpenseCategory()
 
@@ -128,8 +174,27 @@ onMounted(async () => {
     addCashFlowInDate(daysOfWeek[new Date(cashFlow.date).getDay()], new Date(cashFlow.date).toLocaleDateString(), cashFlow.type.name, cashFlow.category.name, index)
     addCashFlowInCategory(cashFlow.type.name, cashFlow.category.name, index)
   });
-  // console.log(sortedCashFlowsGroupedByCategory.value)
+}
 
+watch(selectedMonth, () => {
+  // 根據選擇的月份計算基準日期
+  const baseDate = new Date(
+    today.value.getFullYear(),
+    today.value.getMonth() - selectedMonth.value,
+    today.value.getDate()
+  )
+
+  // 更新日期範圍
+  updateDateRange(baseDate)
+
+  // 更新現金流數據
+  updateCashFlowData(dataRange.value.start.raw, dataRange.value.end.raw)
+})
+
+onMounted(async () => {
+  today.value = new Date()
+  updateDateRange(today.value)
+  await updateCashFlowData(dataRange.value.start.raw, dataRange.value.end.raw)
 })
 
 
@@ -137,7 +202,25 @@ onMounted(async () => {
 
 <template>
   <div class="row mt-2">
-    <h1 class="text-center fs-1">Accounting tool</h1>
+    <div class="mb-2">
+      <!-- <h1 class="text-center fs-1">Accounting tool</h1> -->
+      <h1 v-if="dataRange.start" class="text-center">{{ dataRange.start.formatted }} - {{ dataRange.end.formatted }}
+      </h1>
+      <div class="text-center">
+        <div class="form-check form-check-inline mb-3">
+          <input class="form-check-input" type="radio" name="dateRange" id="currentMonth" value='0'
+            v-model="selectedMonth">
+          <label class="form-check-label" for="currentMonth">Current Month</label>
+        </div>
+        <div class="form-check form-check-inline mb-3">
+          <input class="form-check-input" type="radio" name="dateRange" id="previousMonth" value='1'
+            v-model="selectedMonth">
+          <label class="form-check-label" for="previousMonth">Previous Month</label>
+        </div>
+      </div>
+    </div>
+
+
     <div class="text-center">
       <div class="form-check form-check-inline mb-3">
         <input class="form-check-input" type="radio" id="default" value="default" name="printType"

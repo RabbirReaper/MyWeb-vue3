@@ -25,7 +25,6 @@
         </div>
       </div>
     </div>
-
     <!-- 表格區域 - 只顯示選中的類別 -->
     <div v-if="selectedCategory && ananalyzeCashFlows[selectedCategory]" class="mb-4 mt-4">
       <h3>{{ selectedCategory }}</h3>
@@ -59,6 +58,7 @@
           </tbody>
         </table>
       </div>
+      
     </div>
 
     <!-- 未選擇類別時顯示提示 -->
@@ -102,7 +102,13 @@ const formatCurrencyWithOneDecimal = (value) => {
   }).format(value)
 }
 
-const getSortedData = (data) => {
+// const totalExpense = computed(() => {
+//   return Object.values(props.sortedCashFlowsGroupedByCategory)
+//     .filter(value => value.type === 'expense')
+//     .reduce((sum, value) => sum + value.total, 0)
+// })
+
+const getSortedData =  (data) => {
   return Object.entries(data)
     .sort(([, a], [, b]) => b.total - a.total)
     .reduce((acc, [key, value]) => {
