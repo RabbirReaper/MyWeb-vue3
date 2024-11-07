@@ -149,6 +149,7 @@ const updateDateRange = (baseDate) => {
 
 const initCashFlowData = () => {
   // 重置 ref 類型資料
+  selectedType.value = 'default'
   cashFlows.value = []
   incomeCategories.value = []
   expenseCategories.value = []
