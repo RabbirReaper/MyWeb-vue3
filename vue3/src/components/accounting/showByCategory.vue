@@ -2,7 +2,7 @@
   <div>
     <!-- 卡片網格加上 radio buttons -->
     <div class="d-grid justify-content-center"
-      style="grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem;">
+      style="grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem; justify-items: center;">
       <div v-for="(categoryCashFlow, category) in sortedCashFlowsGroupedByCategory" :key="category"
         class="card border-dark m-3" style="width: 18rem;">
         <div class="card-header bg-transparent border-success d-flex align-items-center">

@@ -252,7 +252,7 @@ onMounted(async () => {
     </div>
 
     <div v-if="selectedType === 'default' || selectedType === 'Detail'" class="d-grid justify-content-center"
-      style="grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem;">
+      style="grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem; justify-items: center; ">
       <div v-for="(dateCashFlow, date) in sortedCashFlowsGroupedByDate" :key="date" class="card border-dark m-3"
         style="width: 18rem;">
         <div class="card-header bg-transparent border-success">
