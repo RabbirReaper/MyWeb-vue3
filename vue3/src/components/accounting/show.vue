@@ -196,6 +196,7 @@ onMounted(async () => {
   today.value = new Date()
   updateDateRange(today.value)
   await updateCashFlowData(dataRange.value.start.raw, dataRange.value.end.raw)
+  // console.log(cashFlowsGroupedByDate)
 })
 
 
@@ -217,6 +218,11 @@ onMounted(async () => {
           <input class="form-check-input" type="radio" name="dateRange" id="previousMonth" value='1'
             v-model="selectedMonth">
           <label class="form-check-label" for="previousMonth">Previous Month</label>
+        </div>
+        <div class="form-check form-check-inline mb-3">
+          <input class="form-check-input" type="radio" name="dateRange" id="ppreviousMonth" value='2'
+            v-model="selectedMonth">
+          <label class="form-check-label" for="ppreviousMonth">PPrevious Month</label>
         </div>
       </div>
     </div>

@@ -20,7 +20,7 @@ app.use(cors())
 app.use(express.static('dist'))
 app.use(express.json())
 
-mongoose.connect('mongodb://127.0.0.1:27017/accounting')
+mongoose.connect(`${process.env.MongoDB_url}`)
   .then(() => {
     console.log("Connection OPEN!!!")
   })
