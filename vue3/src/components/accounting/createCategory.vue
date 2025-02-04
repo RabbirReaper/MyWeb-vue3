@@ -39,6 +39,7 @@
 <script setup>
 import { computed, reactive, ref, watch, onMounted } from 'vue'
 import axios from 'axios'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const selectedType = ref({ name: 'income' })
 const selectedCategory = ref(null)
@@ -52,7 +53,7 @@ const getcashFlowType = async () => {
   try {
     const response = await axios({
       method: 'get',
-      url: 'http://localhost:3000/cashFlowType'
+      url: `${API_BASE_URL}/cashFlowType`
     });
     cashFlowTypes.value = response.data
   } catch (error) {
@@ -63,7 +64,7 @@ const getincomeCategory = async () => {
   try {
     const response = await axios({
       method: 'get',
-      url: 'http://localhost:3000/incomeCategory'
+      url: `${API_BASE_URL}/incomeCategory`
     });
     incomeCategories.value = response.data;
   } catch (error) {
@@ -74,7 +75,7 @@ const getexpenseCategory = async () => {
   try {
     const response = await axios({
       method: 'get',
-      url: 'http://localhost:3000/expenseCategory'
+      url: `${API_BASE_URL}/expenseCategory`
     });
     expenseCategories.value = response.data;
   } catch (error) {
@@ -84,7 +85,7 @@ const getexpenseCategory = async () => {
 const postCategory = async () => {
   const res = await axios({
     method: 'post',
-    url: 'http://localhost:3000/category',
+    url: `${API_BASE_URL}/category`,
     data: {
       type: selectedType.value.name,
       name: category.value

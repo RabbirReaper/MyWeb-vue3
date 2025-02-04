@@ -3,6 +3,7 @@ import { computed, reactive, ref, watch, onMounted } from 'vue'
 import axios from 'axios'
 import chartShow from './chartShow.vue';
 import showByCategory from './showByCategory.vue'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const selectedType = ref('default')
 const cashFlows = ref([])
@@ -36,7 +37,7 @@ const getIncomeCategory = async () => {
   try {
     const response = await axios({
       method: 'get',
-      url: 'http://localhost:3000/incomeCategory'
+      url: `${API_BASE_URL}/incomeCategory`
     });
     incomeCategories.value = response.data;
   } catch (error) {
@@ -48,7 +49,7 @@ const getExpenseCategory = async () => {
   try {
     const response = await axios({
       method: 'get',
-      url: 'http://localhost:3000/expenseCategory'
+      url: `${API_BASE_URL}/expenseCategory`
     });
     expenseCategories.value = response.data;
   } catch (error) {
@@ -60,7 +61,7 @@ const getcashFlow = async (start, end) => {
   try {
     const response = await axios({
       method: 'get',
-      url: `http://localhost:3000/cashFlow?start=${start}&end=${end}`,
+      url: `${API_BASE_URL}/cashFlow?start=${start}&end=${end}`,
     });
     // console.log(start)
     // console.log(end)

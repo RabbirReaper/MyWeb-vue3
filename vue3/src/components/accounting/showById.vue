@@ -17,7 +17,7 @@ const getCashFlowByid = async () => {
   try {
     const response = await axios({
       method: 'get',
-      url: `http://localhost:3000/cashFlow/${id}`,
+      url: `${API_BASE_URL}/cashFlow/${id}`,
     });
     return response.data
   } catch (error) {
@@ -31,7 +31,7 @@ const deleteCashFlowById = async () => {
   try {
     await axios({
       method: 'delete',
-      url: `http://localhost:3000/cashFlow/${id}`,
+      url: `${API_BASE_URL}/cashFlow/${id}`,
     })
     router.push({ path: '/Tool/accounting/show' })
   } catch (error) {
@@ -46,7 +46,7 @@ const deleteCashFlowById = async () => {
 const putCashFlowByid = async () => {
   const res = await axios({
     method: 'put',
-    url: `http://localhost:3000/cashFlow/${id}`,
+    url: `${API_BASE_URL}/cashFlow/${id}`,
     data: cashFlow.value
   }).catch((e) => {
     console.log(e)
@@ -62,7 +62,7 @@ const getCashFlowType = async () => {
   try {
     const response = await axios({
       method: 'get',
-      url: 'http://localhost:3000/cashFlowType'
+      url: `${API_BASE_URL}/cashFlowType`
     });
     cashFlowTypes.value = response.data
   } catch (error) {
@@ -73,7 +73,7 @@ const getIncomeCategory = async () => {
   try {
     const response = await axios({
       method: 'get',
-      url: 'http://localhost:3000/incomeCategory'
+      url: `${API_BASE_URL}/incomeCategory`
     });
     incomeCategories.value = response.data;
   } catch (error) {
@@ -84,7 +84,7 @@ const getExpenseCategory = async () => {
   try {
     const response = await axios({
       method: 'get',
-      url: 'http://localhost:3000/expenseCategory'
+      url: `${API_BASE_URL}/expenseCategory`
     });
     expenseCategories.value = response.data;
   } catch (error) {

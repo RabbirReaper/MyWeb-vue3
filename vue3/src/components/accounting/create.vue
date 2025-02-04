@@ -85,6 +85,8 @@
 import { computed, reactive, ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
 const router = useRouter()
 // const form = ref(null)
@@ -183,7 +185,7 @@ const getcashFlowType = async () => {
   try {
     const response = await axios({
       method: 'get',
-      url: 'http://localhost:3000/cashFlowType'
+      url: `${API_BASE_URL}/cashFlowType`
     });
     cashFlowTypes.value = response.data
   } catch (error) {
@@ -195,7 +197,7 @@ const getincomeCategory = async () => {
   try {
     const response = await axios({
       method: 'get',
-      url: 'http://localhost:3000/incomeCategory'
+      url: `${API_BASE_URL}/incomeCategory`
     });
     incomeCategories.value = response.data;
   } catch (error) {
@@ -207,7 +209,7 @@ const getexpenseCategory = async () => {
   try {
     const response = await axios({
       method: 'get',
-      url: 'http://localhost:3000/expenseCategory'
+      url: `${API_BASE_URL}/expenseCategory`
     });
     expenseCategories.value = response.data;
   } catch (error) {
@@ -218,7 +220,7 @@ const getexpenseCategory = async () => {
 const postCashFlow = async () => {
   return await axios({
     method: 'post',
-    url: 'http://localhost:3000/cashFlow',
+    url: `${API_BASE_URL}/cashFlow`,
     data: {
       description: description.value,
       amount: amount.value,

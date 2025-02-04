@@ -18,6 +18,7 @@ import axios from 'axios'
 import { useRoute } from 'vue-router'
 import { RouterLink } from 'vue-router';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const route = useRoute()
 const date = { year: route.params.year, month: route.params.month, date: route.params.date }
 const cashFlows = ref([])
@@ -26,7 +27,7 @@ const getcashFlow = async (start, end) => {
   try {
     const response = await axios({
       method: 'get',
-      url: `http://localhost:3000/cashFlow?start=${start}&end=${end}`,
+      url: `${API_BASE_URL}/cashFlow?start=${start}&end=${end}`,
     });
     // console.log(response.data)
     // cashFlows.value = response.data;
