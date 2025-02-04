@@ -1,8 +1,8 @@
 <template>
-  <form class="row needs-validation" @submit.prevent="handleSubmit" novalidate>
-    <h1 class="text-center fs-1">New account</h1>
-    <div class="col-6 offset-3 validated-form">
-      <div class="mb-3">
+  <form class="row g-2 g-md-3 needs-validation" @submit.prevent="handleSubmit" novalidate>
+    <h1 class="text-center fs-1 px-2">New account</h1>
+    <div class="col-12 col-md-6 offset-md-3 px-2 px-md-0 validated-form">
+      <div class="mb-2 mb-md-3">
         <label for="description" class="form-label">Description</label>
         <input class="form-control"
           :class="{ 'is-invalid': errors.description, 'is-valid': description && !errors.description }" type="text"
@@ -12,7 +12,7 @@
         </div>
       </div>
 
-      <div class="mb-3">
+      <div class="mb-2 mb-md-3">
         <label class="form-label" for="amount">Money</label>
         <div class="input-group has-validation">
           <span class="input-group-text" id="price-label">$</span>
@@ -24,7 +24,7 @@
         </div>
       </div>
 
-      <div class="mb-3">
+      <div class="mb-2 mb-md-3">
         <label for="date" class="form-label">Date</label>
         <input type="date" class="form-control" :class="{ 'is-invalid': errors.date, 'is-valid': date && !errors.date }"
           v-model="date" @input="validateField('date')" required>
@@ -33,46 +33,52 @@
         </div>
       </div>
 
-      <div v-if="cashFlowTypes.length > 0" class="mb-3">
-        <div class="form-check form-check-inline" v-for="item in cashFlowTypes" :key="item._id">
-          <input class="form-check-input"
-            :class="{ 'is-invalid': errors.type, 'is-valid': selectedType._id && !errors.type }" type="radio"
-            :id="item._id" :value="item" v-model="selectedType" @change="validateField('type')" name="cashFlowType"
-            required />
-          <label class="form-check-label" :for="item._id">{{ item.name }}</label>
+      <div v-if="cashFlowTypes.length > 0" class="mb-2 mb-md-3">
+        <div class="d-flex flex-wrap gap-2" v-for="item in cashFlowTypes" :key="item._id">
+          <div class="form-check">
+            <input class="form-check-input"
+              :class="{ 'is-invalid': errors.type, 'is-valid': selectedType._id && !errors.type }" type="radio"
+              :id="item._id" :value="item" v-model="selectedType" @change="validateField('type')" name="cashFlowType"
+              required />
+            <label class="form-check-label" :for="item._id">{{ item.name }}</label>
+          </div>
         </div>
         <div class="invalid-feedback d-block" v-if="errors.type">
           Please select a type.
         </div>
       </div>
 
-      <div v-if="selectedType.name === 'income' && incomeCategories.length > 0" class="mb-3">
-        <div class="form-check form-check-inline" v-for="item in incomeCategories" :key="item._id">
-          <input class="form-check-input"
-            :class="{ 'is-invalid': errors.category, 'is-valid': selectedCategory && !errors.category }" type="radio"
-            :id="item._id" :value="item._id" v-model="selectedCategory" @change="validateField('category')"
-            name="incomeCategory" required />
-          <label class="form-check-label" :for="item._id">{{ item.name }}</label>
+      <div v-if="selectedType.name === 'income' && incomeCategories.length > 0" class="mb-2 mb-md-3">
+        <div class="d-flex flex-wrap gap-2">
+          <div class="form-check" v-for="item in incomeCategories" :key="item._id">
+            <input class="form-check-input"
+              :class="{ 'is-invalid': errors.category, 'is-valid': selectedCategory && !errors.category }" type="radio"
+              :id="item._id" :value="item._id" v-model="selectedCategory" @change="validateField('category')"
+              name="incomeCategory" required />
+            <label class="form-check-label" :for="item._id">{{ item.name }}</label>
+          </div>
         </div>
         <div class="invalid-feedback d-block" v-if="errors.category">
           Please select a category.
         </div>
       </div>
 
-      <div v-if="selectedType.name === 'expense' && expenseCategories.length > 0" class="mb-3">
-        <div class="form-check form-check-inline" v-for="item in expenseCategories" :key="item._id">
-          <input class="form-check-input"
-            :class="{ 'is-invalid': errors.category, 'is-valid': selectedCategory && !errors.category }" type="radio"
-            :id="item._id" :value="item._id" v-model="selectedCategory" @change="validateField('category')"
-            name="expenseCategory" required />
-          <label class="form-check-label" :for="item._id">{{ item.name }}</label>
+      <div v-if="selectedType.name === 'expense' && expenseCategories.length > 0" class="mb-2 mb-md-3">
+        <div class="d-flex flex-wrap gap-2">
+          <div class="form-check" v-for="item in expenseCategories" :key="item._id">
+            <input class="form-check-input"
+              :class="{ 'is-invalid': errors.category, 'is-valid': selectedCategory && !errors.category }" type="radio"
+              :id="item._id" :value="item._id" v-model="selectedCategory" @change="validateField('category')"
+              name="expenseCategory" required />
+            <label class="form-check-label" :for="item._id">{{ item.name }}</label>
+          </div>
         </div>
         <div class="invalid-feedback d-block" v-if="errors.category">
           Please select a category.
         </div>
       </div>
 
-      <div class="mb-3">
+      <div class="mb-2 mb-md-3">
         <button class="btn btn-primary" type="submit">
           Submit
         </button>
