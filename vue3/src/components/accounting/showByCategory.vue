@@ -133,6 +133,9 @@ const addInAnanalyzeCashFlows = (category, description, amount) => {
 }
 
 onMounted(() => {
+
+  Object.keys(ananalyzeCashFlows).forEach(key => delete ananalyzeCashFlows[key])
+
   props.cashFlows.forEach(cashFlow => {
     addInAnanalyzeCashFlows(cashFlow.category.name, cashFlow.description, cashFlow.amount)
   })
