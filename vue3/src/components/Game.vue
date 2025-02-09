@@ -11,6 +11,7 @@ const message = ref('') // 顯示是否符合的訊息
 const setPassword = () => {
   const salt = bcrypt.genSaltSync(10) // 產生鹽 (salt)
   storedHashedPassword.value = bcrypt.hashSync(passwordInput.value, salt) // 將密碼加密
+  // hash 異步
   message.value = '密碼已加密並儲存！'
   passwordInput.value = '' // 清空輸入框
 }
@@ -57,8 +58,3 @@ const checkPassword = () => {
   </div>
 </template>
 
-<style>
-body {
-  background-color: #f8f9fa;
-}
-</style>

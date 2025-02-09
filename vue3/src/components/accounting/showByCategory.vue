@@ -69,7 +69,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { nextTick , onMounted, reactive, ref } from 'vue'
 
 const props = defineProps({
   sortedCashFlowsGroupedByCategory: {
@@ -132,7 +132,7 @@ const addInAnanalyzeCashFlows = (category, description, amount) => {
   ananalyzeCashFlows[category][description].times += 1
 }
 
-onMounted(() => {
+onMounted(async () => {
 
   Object.keys(ananalyzeCashFlows).forEach(key => delete ananalyzeCashFlows[key])
 
@@ -140,6 +140,8 @@ onMounted(() => {
     addInAnanalyzeCashFlows(cashFlow.category.name, cashFlow.description, cashFlow.amount)
   })
 
+  await nextTick()
+  
   // 可選擇自動選擇第一個類別
   const firstCategory = Object.keys(props.sortedCashFlowsGroupedByCategory)[0]
   if (firstCategory) {
