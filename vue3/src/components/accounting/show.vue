@@ -167,7 +167,7 @@ const initCashFlowData = () => {
 
 const updateCashFlowData = async (start, end) => {
   initCashFlowData()
-  
+
   cashFlows.value = await getcashFlow(start, end);
   await getIncomeCategory()
   await getExpenseCategory()
@@ -210,20 +210,9 @@ onMounted(async () => {
       <h1 v-if="dataRange.start" class="text-center">{{ dataRange.start.formatted }} - {{ dataRange.end.formatted }}
       </h1>
       <div class="text-center">
-        <div class="form-check form-check-inline mb-3">
-          <input class="form-check-input" type="radio" name="dateRange" id="currentMonth" value='0'
-            v-model="selectedMonth">
-          <label class="form-check-label" for="currentMonth">Current Month</label>
-        </div>
-        <div class="form-check form-check-inline mb-3">
-          <input class="form-check-input" type="radio" name="dateRange" id="previousMonth" value='1'
-            v-model="selectedMonth">
-          <label class="form-check-label" for="previousMonth">Previous Month</label>
-        </div>
-        <div class="form-check form-check-inline mb-3">
-          <input class="form-check-input" type="radio" name="dateRange" id="ppreviousMonth" value='2'
-            v-model="selectedMonth">
-          <label class="form-check-label" for="ppreviousMonth">PPrevious Month</label>
+        <div>
+          <button class="btn btn-secondary" @click="selectedMonth++">Next (往後)</button>
+          <button class="btn btn-primary me-2" @click="selectedMonth--">Previous (往前)</button>
         </div>
       </div>
     </div>
