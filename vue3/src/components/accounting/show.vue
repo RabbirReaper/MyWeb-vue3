@@ -211,8 +211,8 @@ onMounted(async () => {
       </h1>
       <div class="text-center">
         <div>
-          <button class="btn btn-secondary" @click="selectedMonth++">Next (往後)</button>
-          <button class="btn btn-primary me-2" @click="selectedMonth--">Previous (往前)</button>
+          <button class="btn btn-primary me-2" @click="selectedMonth--">after (往後)</button>
+          <button class="btn btn-secondary" @click="selectedMonth++">before (往前)</button>
         </div>
       </div>
     </div>
