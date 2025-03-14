@@ -1,6 +1,19 @@
 <script setup>
 import { ref } from 'vue'
 import bcrypt from 'bcryptjs'
+import { useCounterStore } from '@/stores/counter'
+import { storeToRefs } from 'pinia'
+
+// 獲取store實例
+const store = useCounterStore()
+
+// 使用storeToRefs保持響應性
+const { count, doubleCount } = storeToRefs(store)
+
+// Actions可以直接使用
+function handleClick() {
+  store.increment()
+}
 
 // 定義初始密碼和輸入密碼
 const storedHashedPassword = ref('') // 儲存加密的密碼
@@ -22,6 +35,12 @@ const checkPassword = () => {
   message.value = isValid ? '密碼符合！' : '密碼不符合！'
   passwordInput.value = '' // 清空輸入框
 }
+
+function testClick(event) {
+  // 這裡的 event 就是自動傳入的原生事件對象
+  console.log(event.target); // 輸出被點擊的元素（按鈕）
+  console.log(event.type);   // 輸出 "click"
+}
 </script>
 
 <template>
@@ -34,13 +53,7 @@ const checkPassword = () => {
     <div class="card mx-auto p-4" style="max-width: 400px;">
       <div class="mb-3">
         <label for="password" class="form-label">輸入密碼</label>
-        <input
-          id="password"
-          type="password"
-          class="form-control"
-          v-model="passwordInput"
-          placeholder="輸入密碼"
-        />
+        <input id="password" type="password" class="form-control" v-model="passwordInput" placeholder="輸入密碼" />
       </div>
 
       <div class="d-flex justify-content-between">
@@ -49,12 +62,19 @@ const checkPassword = () => {
       </div>
 
       <div class="mt-3">
-        <p class="text-center fw-bold" :class="{'text-success': message === '密碼符合！', 'text-danger': message === '密碼不符合！'}">
+        <p class="text-center fw-bold"
+          :class="{ 'text-success': message === '密碼符合！', 'text-danger': message === '密碼不符合！' }">
           {{ message }}
         </p>
       </div>
     </div>
     {{ storedHashedPassword }}
+    <div>
+      <p>Count: {{ count }}</p>
+      <p>Double: {{ doubleCount }}</p>
+      <button @click="handleClick">增加</button>
+      <button @click="store.increment">也可以直接使用</button>
+    </div>
+    <button @click="testClick">點擊我</button>
   </div>
 </template>
-
