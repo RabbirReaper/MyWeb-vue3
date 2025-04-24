@@ -12,6 +12,7 @@ import accountingTool_create from "../components/accounting/create.vue"
 import accountingTool_createCategory from "../components/accounting/createCategory.vue"
 import accountingTool_showById from "../components/accounting/showById.vue"
 import accountingTool_showByDate from "../components/accounting/showByDate.vue"
+import accountingTool_total from "../components/accounting/total.vue"
 
 const router = createRouter({
   history:createWebHistory (import.meta.env.BASE_URL),
@@ -69,6 +70,11 @@ const router = createRouter({
           path: 'showDetail/:year/:month/:date',
           name: 'Accounting_tools_showByDate',
           component: accountingTool_showByDate
+        },
+        {
+          path : 'total',
+          name : 'Accounting_tools_total',
+          component : accountingTool_total
         }
       ]
     },

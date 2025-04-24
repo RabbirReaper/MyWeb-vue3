@@ -13,7 +13,6 @@ const expenseCategories = ref([])
 const cashFlowsGroupedByCategory = reactive({});
 
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-const selectedMonth = ref(0)
 const dataRange = ref({})
 const today = ref()
 
@@ -41,7 +40,7 @@ const getIncomeCategory = async () => {
     });
     incomeCategories.value = response.data;
   } catch (error) {
-    console.error('Error fetching cash flows:', error);
+    console.error('Error fetching income categories:', error);
   }
 };
 
@@ -53,19 +52,17 @@ const getExpenseCategory = async () => {
     });
     expenseCategories.value = response.data;
   } catch (error) {
-    console.error('Error fetching cash flows:', error);
+    console.error('Error fetching expense categories:', error);
   }
 };
 
-const getcashFlow = async (start, end) => {
+const getAllCashFlows = async () => {
   try {
     const response = await axios({
       method: 'get',
-      url: `${API_BASE_URL}/cashFlow?start=${start}&end=${end}`,
+      url: `${API_BASE_URL}/cashFlow`,
     });
-    // console.log(start)
-    // console.log(end)
-    return response.data
+    return response.data;
   } catch (error) {
     console.error('Error fetching cash flows:', error);
   }
@@ -118,35 +115,38 @@ const isNegative = (number) => {
   return number < 0;
 }
 
-
-const formatDate = (date, isEndDate = false) => {
-  // 如果是結束日期，顯示時減一天
-  const displayDate = isEndDate
-    ? new Date(date.getTime() - 24 * 60 * 60 * 1000)
-    : date;
-
+// 格式化日期的函數
+const formatDate = (date) => {
   return {
-    formatted: displayDate.toLocaleString('zh-TW', {
+    formatted: date.toLocaleString('zh-TW', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit'
     }),
-    raw: date // 保留原始日期用於數據查詢
+    raw: date
   };
 };
 
-// 更新日期範圍的函數
-const updateDateRange = (baseDate) => {
-  const tenthOfMonth = new Date(baseDate.getFullYear(), baseDate.getMonth(), 10)
-  const x = 1
-  if (baseDate.getDate() >= x) {
-    dataRange.value.start = formatDate(new Date(baseDate.getFullYear(), baseDate.getMonth(), x))
-    dataRange.value.end = formatDate(new Date(baseDate.getFullYear(), baseDate.getMonth() + 1, x), true)
-  } else {
-    dataRange.value.start = formatDate(new Date(baseDate.getFullYear(), baseDate.getMonth() - 1, x))
-    dataRange.value.end = formatDate(new Date(baseDate.getFullYear(), baseDate.getMonth(), x), true)
+// 設置自動日期範圍的函數
+const setDateRangeFromData = (cashFlowData) => {
+  if (cashFlowData.length === 0) {
+    dataRange.value = {
+      start: formatDate(new Date()),
+      end: formatDate(new Date())
+    };
+    return;
   }
-}
+
+  // 找出所有資料中的最早和最晚日期
+  const dates = cashFlowData.map(cf => new Date(cf.date));
+  const minDate = new Date(Math.min(...dates));
+  const maxDate = new Date(Math.max(...dates));
+
+  dataRange.value = {
+    start: formatDate(minDate),
+    end: formatDate(maxDate)
+  };
+};
 
 const initCashFlowData = () => {
   // 重置 ref 類型資料
@@ -165,10 +165,14 @@ const initCashFlowData = () => {
   })
 }
 
-const updateCashFlowData = async (start, end) => {
+const updateCashFlowData = async () => {
   initCashFlowData()
 
-  cashFlows.value = await getcashFlow(start, end);
+  cashFlows.value = await getAllCashFlows();
+  
+  // 設置日期範圍為資料的第一天和最後一天
+  setDateRangeFromData(cashFlows.value);
+  
   await getIncomeCategory()
   await getExpenseCategory()
 
@@ -178,26 +182,9 @@ const updateCashFlowData = async (start, end) => {
   });
 }
 
-watch(selectedMonth, () => {
-  // 根據選擇的月份計算基準日期
-  const baseDate = new Date(
-    today.value.getFullYear(),
-    today.value.getMonth() - selectedMonth.value,
-    today.value.getDate()
-  )
-
-  // 更新日期範圍
-  updateDateRange(baseDate)
-
-  // 更新現金流數據
-  updateCashFlowData(dataRange.value.start.raw, dataRange.value.end.raw)
-})
-
 onMounted(async () => {
   today.value = new Date()
-  updateDateRange(today.value)
-  await updateCashFlowData(dataRange.value.start.raw, dataRange.value.end.raw)
-  // console.log(cashFlowsGroupedByDate)
+  await updateCashFlowData()
 })
 
 
@@ -209,12 +196,6 @@ onMounted(async () => {
       <!-- <h1 class="text-center fs-1">Accounting tool</h1> -->
       <h1 v-if="dataRange.start" class="text-center">{{ dataRange.start.formatted }} - {{ dataRange.end.formatted }}
       </h1>
-      <div class="text-center">
-        <div>
-          <button class="btn btn-primary me-2" @click="selectedMonth--">after (往後)</button>
-          <button class="btn btn-secondary" @click="selectedMonth++">before (往前)</button>
-        </div>
-      </div>
     </div>
 
 

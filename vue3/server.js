@@ -89,23 +89,22 @@ app.get('/cashFlow', async (req, res) => {
   const { start, end, category } = req.query;
   
   // 建立查詢條件物件
-  const queryConditions = {
-    date: {
-      $gte: start,
-      $lt: end
-    }
-  };
-
+  const queryConditions = {};
+  
+  // 只有當 start 和 end 都有值時，才添加日期條件
+  if (start && end) {
+    queryConditions.date = { $gte: start, $lt: end };
+  }
+  
   // 如果有提供 category 查詢參數，則添加到查詢條件中
   if (category) {
     queryConditions.category = category;
   }
-
+  
   try {
     const cashFlows = await CashFlow.find(queryConditions)
       .populate('type', 'name')
       .populate('category', 'name');
-      
     res.json(cashFlows);
   } catch (error) {
     console.error('Error fetching cash flows:', error);

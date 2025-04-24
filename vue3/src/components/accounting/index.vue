@@ -14,6 +14,7 @@ import { RouterLink } from 'vue-router';
         <RouterLink class="button-1 router-link" active-class="button-2" to="/Tool/accounting/show">show</RouterLink>
         <RouterLink class="button-1" active-class="button-2" to="/Tool/accounting/create">Creat</RouterLink>
         <RouterLink class="button-1" active-class="button-2" to="/Tool/accounting/createCategory">Category</RouterLink>
+        <RouterLink class="button-1" active-class="button-2" to="/Tool/accounting/total">total</RouterLink>
       </div>
     </header>
 
