@@ -13,6 +13,7 @@ import accountingTool_createCategory from "../components/accounting/createCatego
 import accountingTool_showById from "../components/accounting/showById.vue"
 import accountingTool_showByDate from "../components/accounting/showByDate.vue"
 import accountingTool_total from "../components/accounting/total.vue"
+import test from "../components/Test.vue"
 
 const router = createRouter({
   history:createWebHistory (import.meta.env.BASE_URL),
@@ -21,6 +22,11 @@ const router = createRouter({
       path:"/",
       name:"Home",
       component: Home 
+    },
+    {
+      path:"/test",
+      name:"test",
+      component: test
     },
     {
       path:"/home",
