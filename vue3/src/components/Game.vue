@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted, watch, nextTick, onUnmounted} from 'vue';
 import bcrypt from 'bcryptjs'
 import { useCounterStore } from '@/stores/counter'
 import { storeToRefs } from 'pinia'
@@ -41,6 +41,77 @@ function testClick(event) {
   console.log(event.target); // 輸出被點擊的元素（按鈕）
   console.log(event.type);   // 輸出 "click"
 }
+
+// 響應式狀態
+const isExpanded = ref(false); // 是否展開的狀態
+const collapseContentRef = ref(null); // 對折疊內容的引用
+const actualHeight = ref(0); // 保存實際高度值(數字形式)
+const forceUpdate = ref(0); // 用來強制更新computed的標記
+const title = ref('折疊標題'); // 折疊標題
+
+// 使用computed來計算內容樣式
+const contentStyle = computed(() => {
+  // 強制更新標記，當需要重新計算高度時增加此值
+  forceUpdate.value;  
+  
+  if (!isExpanded.value) return '0px';
+  
+  if (collapseContentRef.value && actualHeight.value === 0) {
+    // 需要計算高度
+    updateActualHeight();
+  }
+  
+  return actualHeight.value > 0 ? `${actualHeight.value}px` : 'auto';
+});
+
+// 更新實際高度的函數
+const updateActualHeight = () => {
+  if (!collapseContentRef.value) return;
+  
+  // 臨時移除高度限制來測量真實高度
+  const originalStyle = collapseContentRef.value.style.maxHeight;
+  collapseContentRef.value.style.maxHeight = 'none';
+  
+  // 獲取實際高度
+  actualHeight.value = collapseContentRef.value.scrollHeight;
+  
+  // 恢復原始樣式
+  collapseContentRef.value.style.maxHeight = originalStyle;
+};
+
+// 切換折疊狀態
+const toggleCollapse = () => {
+  isExpanded.value = !isExpanded.value;
+};
+
+// 處理窗口大小調整
+const handleResize = () => {
+  // 重置高度並觸發重新計算
+  actualHeight.value = 0;
+  forceUpdate.value++;
+};
+
+// 組件掛載後
+onMounted(() => {
+  // 初始計算內容高度
+  nextTick(() => {
+    updateActualHeight();
+  });
+  
+  // 監聽窗口大小變化，使用防抖處理優化性能
+  window.addEventListener('resize', handleResize);
+});
+
+// 監聽內容變化
+watch(() => collapseContentRef.value?.innerHTML, () => {
+  // 內容變化時強制更新高度
+  handleResize();
+}, { deep: true });
+
+// 組件卸載時清除事件監聽
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
 </script>
 
 <template>
@@ -75,6 +146,57 @@ function testClick(event) {
       <button @click="handleClick">增加</button>
       <button @click="store.increment">也可以直接使用</button>
     </div>
+    
     <button @click="testClick">點擊我</button>
+
+
+    <div>
+      <!-- 折疊標題區域 -->
+      <button class="collapse-header" @click="toggleCollapse">
+        {{ title }}
+        <i :class="isExpanded ? 'icon-up' : 'icon-down'"></i>
+      </button>
+      
+      <!-- 折疊內容區域 -->
+      <div 
+        class="collapse-content" 
+        ref="collapseContentRef"
+        :style="{ maxHeight: contentStyle }">
+        
+        <p>這是折疊內容的示例。當內容過多時，會自動計算高度並展開。</p>
+        <p>這是第二行內容。</p>
+
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+        Dropdown button
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+        <li><a class="dropdown-item" href="#">Action</a></li>
+        <li><a class="dropdown-item" href="#">Another action</a></li>
+        <li><a class="dropdown-item" href="#">Something else here</a></li>
+      </ul>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.collapse-header {
+  cursor: pointer;
+  user-select: none;
+  padding: 10px;
+  background-color: #f1f1f1;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.collapse-content {
+  overflow: hidden;
+  transition: max-height 0.5s ease;
+}
+
+
+</style>
