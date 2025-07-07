@@ -230,7 +230,7 @@ app.get('/electricMeter/last', async (req, res) => {
   }
 });
 
-// 新增電錶記錄
+// 新增電錶記錄 - 簡化版本，只儲存基本數據
 app.post('/electricMeter', async (req, res) => {
   try {
     const { reading, date } = req.body;
@@ -238,45 +238,23 @@ app.post('/electricMeter', async (req, res) => {
     // 正確處理時區 - 將接收到的時間當作台灣當地時間
     let recordDate;
     if (typeof date === 'string') {
-      // 如果是字串格式，當作當地時間處理
       recordDate = new Date(date);
     } else {
       recordDate = new Date(date);
     }
     
-    // 獲取前一筆記錄來計算用量
-    const previousReading = await ElectricMeterReading.findOne({}).sort({ date: -1 });
-    
-    let dailyUsage = 0;
-    let periodUsage = 0;
-    let daysDiff = 0;
-    
-    if (previousReading) {
-      periodUsage = Math.max(0, reading - previousReading.reading);
-      
-      // 計算兩次記錄之間的天數差
-      const previousDate = new Date(previousReading.date);
-      const timeDiff = recordDate - previousDate;
-      daysDiff = Math.max(1, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
-      
-      // 計算平均日用量
-      dailyUsage = periodUsage / daysDiff;
-    }
-    
-    // 預設電價，您可以根據需要修改或從環境變數獲取
-    const electricityRate = 5.5;
-    const cost = periodUsage * electricityRate;
-    
+    // 只儲存基本數據，計算邏輯交給前端處理
     const newReading = new ElectricMeterReading({
       reading,
-      dailyUsage,
-      cost,
-      date: recordDate,
-      periodUsage, // 新增：期間總用量
-      daysDiff     // 新增：間隔天數
+      dailyUsage: 0,      // 前端計算
+      periodUsage: 0,     // 前端計算
+      daysDiff: 0,        // 前端計算
+      cost: 0,            // 前端計算
+      date: recordDate
     });
     
     await newReading.save();
+    
     res.status(201).json({ 
       message: 'Electric meter reading created successfully', 
       data: newReading 
@@ -301,6 +279,58 @@ app.delete('/electricMeter/:id', async (req, res) => {
   } catch (error) {
     console.error('Error deleting electric meter reading:', error);
     res.status(500).json({ error: 'Failed to delete electric meter reading' });
+  }
+});
+
+// 重新計算所有現有記錄的API（修正期間用量問題）
+app.post('/electricMeter/recalculate', async (req, res) => {
+  try {
+    console.log('前端將自行處理計算邏輯，此API已停用');
+    res.json({ 
+      message: '計算邏輯已移至前端處理', 
+      note: '請刷新頁面查看正確計算結果'
+    });
+  } catch (error) {
+    res.status(500).json({ error: '操作失敗' });
+  }
+});
+
+// 修正時區問題的API（一次性使用）
+app.post('/electricMeter/fix-timezone', async (req, res) => {
+  try {
+    console.log('開始修正時區問題...');
+    
+    // 獲取所有電錶記錄
+    const readings = await ElectricMeterReading.find({}).sort({ date: 1 });
+    console.log(`找到 ${readings.length} 筆記錄需要修正`);
+
+    // 修正每筆記錄的時間（減去8小時）
+    for (const reading of readings) {
+      const originalDate = new Date(reading.date);
+      const correctedDate = new Date(originalDate.getTime() - (8 * 60 * 60 * 1000));
+      
+      console.log(`修正記錄 ${reading._id}:`);
+      console.log(`  原始時間: ${originalDate.toLocaleString('zh-TW')}`);
+      console.log(`  修正時間: ${correctedDate.toLocaleString('zh-TW')}`);
+      
+      // 只更新時間，計算邏輯交給前端
+      await ElectricMeterReading.findByIdAndUpdate(reading._id, {
+        date: correctedDate,
+        dailyUsage: 0,
+        periodUsage: 0,
+        daysDiff: 0,
+        cost: 0
+      });
+    }
+
+    res.json({ 
+      message: '時區修正完成！計算邏輯將由前端處理。', 
+      recordsFixed: readings.length 
+    });
+    
+  } catch (error) {
+    console.error('修正時區時發生錯誤:', error);
+    res.status(500).json({ error: '修正失敗' });
   }
 });
 

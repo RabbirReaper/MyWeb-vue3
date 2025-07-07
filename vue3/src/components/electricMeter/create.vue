@@ -47,7 +47,7 @@
         </div>
       </div>
 
-      <div class="mb-2 mb-md-3" v-if="lastReading && lastReading.reading">
+      <div class="mb-2 mb-md-3" v-if="lastReading && lastReading.reading && reading > 0">
         <div class="alert alert-info">
           <small>
             上次記錄：{{ formatNumber(lastReading.reading) }} 度 ({{ formatDateTime(lastReading.date) }})
@@ -57,6 +57,8 @@
             間隔天數：{{ calculateDaysDiff() }} 天
             <br>
             預估平均日用量：{{ formatNumber(calculateDaysDiff() > 0 ? Math.max(0, reading - lastReading.reading) / calculateDaysDiff() : 0) }} 度/天
+            <br>
+            預估期間費用：{{ formatCurrency(Math.max(0, reading - lastReading.reading) * 5.5) }}
           </small>
         </div>
       </div>
@@ -129,6 +131,16 @@ const formatNumber = (num) => {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   }).format(num)
+}
+
+// 格式化貨幣
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('zh-TW', {
+    style: 'currency',
+    currency: 'TWD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount)
 }
 
 // 格式化日期時間 - 確保顯示當地時間

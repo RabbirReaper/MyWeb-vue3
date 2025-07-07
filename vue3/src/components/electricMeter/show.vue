@@ -4,20 +4,37 @@
       <h1 class="text-center fs-1">電錶記錄分析</h1>
       
       <!-- 電價設定 -->
-      <div class="col-12 col-md-6 offset-md-3 mb-4">
+      <div class="col-12 col-md-8 offset-md-2 mb-4">
         <div class="card">
           <div class="card-header">
-            <h5 class="mb-0">電價設定</h5>
+            <h5 class="mb-0">設定選項</h5>
           </div>
           <div class="card-body">
-            <div class="input-group">
-              <span class="input-group-text">每度電價</span>
-              <input type="number" 
-                class="form-control" 
-                step="0.1" 
-                v-model="electricityRate" 
-                @input="updateCalculations">
-              <span class="input-group-text">元</span>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="input-group mb-3 mb-md-0">
+                  <span class="input-group-text">每度電價</span>
+                  <input type="number" 
+                    class="form-control" 
+                    step="0.1" 
+                    v-model="electricityRate" 
+                    @input="updateCalculations">
+                  <span class="input-group-text">元</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="input-group">
+                  <span class="input-group-text">間隔計算</span>
+                  <select class="form-select" v-model="calculationMethod">
+                    <option value="date">日期差（推薦）</option>
+                    <option value="time">實際時間差</option>
+                  </select>
+                </div>
+                <small class="text-muted">
+                  <span v-if="calculationMethod === 'date'">只計算日期差異，不考慮具體時間</span>
+                  <span v-else>考慮具體時間，向上取整到天數</span>
+                </small>
+              </div>
             </div>
           </div>
         </div>
@@ -25,12 +42,12 @@
     </div>
 
     <!-- 統計摘要 -->
-    <div class="row mb-4" v-if="Array.isArray(readings) && readings.length > 0">
+    <div class="row mb-4" v-if="processedReadings.length > 0">
       <div class="col-md-3">
         <div class="card text-center">
           <div class="card-body">
             <h5 class="card-title text-primary">總記錄數</h5>
-            <h3 class="card-text">{{ readings.length }}</h3>
+            <h3 class="card-text">{{ processedReadings.length }}</h3>
           </div>
         </div>
       </div>
@@ -61,27 +78,31 @@
     </div>
 
     <!-- 圖表區域 -->
-    <div class="row mb-4" v-if="Array.isArray(readings) && readings.length > 1">
+    <div class="row mb-4" v-if="processedReadings.length > 1">
       <div class="col-12">
         <div class="card">
           <div class="card-header">
             <h5 class="mb-0">電錶讀數趨勢</h5>
           </div>
           <div class="card-body">
-            <Line :data="readingChartData" :options="chartOptions" />
+            <div class="chart-container">
+              <Line :data="readingChartData" :options="chartOptions" />
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="row mb-4" v-if="Array.isArray(readings) && readings.length > 1">
+    <div class="row mb-4" v-if="processedReadings.length > 1">
       <div class="col-md-6">
         <div class="card">
           <div class="card-header">
             <h5 class="mb-0">平均日用量趨勢</h5>
           </div>
           <div class="card-body">
-            <Line :data="usageChartData" :options="usageChartOptions" />
+            <div class="chart-container">
+              <Line :data="usageChartData" :options="usageChartOptions" />
+            </div>
           </div>
         </div>
       </div>
@@ -91,7 +112,9 @@
             <h5 class="mb-0">期間費用趨勢</h5>
           </div>
           <div class="card-body">
-            <Line :data="costChartData" :options="costChartOptions" />
+            <div class="chart-container">
+              <Line :data="costChartData" :options="costChartOptions" />
+            </div>
           </div>
         </div>
       </div>
@@ -105,7 +128,7 @@
             <h5 class="mb-0">記錄明細</h5>
           </div>
           <div class="card-body">
-            <div class="table-responsive" v-if="Array.isArray(readings) && readings.length > 0">
+            <div class="table-responsive" v-if="processedReadings.length > 0">
               <table class="table table-striped">
                 <thead>
                   <tr>
@@ -123,8 +146,8 @@
                     <td>{{ formatDateTime(reading.date) }}</td>
                     <td>{{ formatNumber(reading.reading || 0) }} 度</td>
                     <td>
-                      <span v-if="reading.daysDiff">{{ reading.daysDiff }} 天</span>
-                      <span v-else class="text-muted">首次記錄</span>
+                      <span v-if="reading.isFirstRecord" class="text-muted">首次記錄</span>
+                      <span v-else>{{ reading.daysDiff }} 天</span>
                     </td>
                     <td>{{ formatNumber(reading.periodUsage || 0) }} 度</td>
                     <td>{{ formatNumber(reading.dailyUsage || 0) }} 度</td>
@@ -163,6 +186,63 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const readings = ref([])
 const electricityRate = ref(5.5)
+const calculationMethod = ref('date') // 'date' 或 'time'
+
+// 核心計算邏輯 - 前端處理所有計算
+const processedReadings = computed(() => {
+  if (!Array.isArray(readings.value) || readings.value.length === 0) return []
+  
+  // 1. 按日期排序（從早到晚）
+  const sortedReadings = [...readings.value].sort((a, b) => new Date(a.date) - new Date(b.date))
+  
+  // 2. 計算每筆記錄的期間用量、間隔天數等
+  return sortedReadings.map((reading, index) => {
+    if (index === 0) {
+      // 第一筆記錄
+      return {
+        ...reading,
+        periodUsage: 0,
+        dailyUsage: 0,
+        daysDiff: 0,
+        cost: 0,
+        isFirstRecord: true
+      }
+    } else {
+      // 後續記錄
+      const previousReading = sortedReadings[index - 1]
+      const periodUsage = Math.max(0, reading.reading - previousReading.reading)
+      
+      const currentDate = new Date(reading.date)
+      const previousDate = new Date(previousReading.date)
+      
+      let daysDiff
+      
+      if (calculationMethod.value === 'date') {
+        // 方案一：日期差計算（不考慮具體時間）
+        const currentDateOnly = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate())
+        const previousDateOnly = new Date(previousDate.getFullYear(), previousDate.getMonth(), previousDate.getDate())
+        const timeDiff = currentDateOnly - previousDateOnly
+        daysDiff = Math.max(1, timeDiff / (1000 * 60 * 60 * 24))
+      } else {
+        // 方案二：實際時間差計算（考慮具體時間）
+        const timeDiff = currentDate - previousDate
+        daysDiff = Math.max(1, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)))
+      }
+      
+      const dailyUsage = periodUsage / daysDiff
+      const cost = periodUsage * electricityRate.value
+      
+      return {
+        ...reading,
+        periodUsage,
+        dailyUsage,
+        daysDiff,
+        cost,
+        isFirstRecord: false
+      }
+    }
+  })
+})
 
 // 格式化數字
 const formatNumber = (num) => {
@@ -195,17 +275,17 @@ const formatDateTime = (dateStr) => {
   })
 }
 
-// 排序後的記錄
+// 排序後的記錄（用於顯示，從新到舊）
 const sortedReadings = computed(() => {
-  if (!Array.isArray(readings.value)) return []
-  return [...readings.value].sort((a, b) => new Date(b.date) - new Date(a.date))
+  return [...processedReadings.value].sort((a, b) => new Date(b.date) - new Date(a.date))
 })
 
-// 計算平均日用量
+// 計算平均日用量（基於處理後的數據）
 const averageDailyUsage = computed(() => {
-  if (!Array.isArray(readings.value) || readings.value.length === 0) return 0
-  const totalUsage = readings.value.reduce((sum, reading) => sum + (reading.dailyUsage || 0), 0)
-  return totalUsage / readings.value.length
+  const validReadings = processedReadings.value.filter(r => !r.isFirstRecord)
+  if (validReadings.length === 0) return 0
+  const totalUsage = validReadings.reduce((sum, reading) => sum + reading.dailyUsage, 0)
+  return totalUsage / validReadings.length
 })
 
 // 預測月用量
@@ -220,7 +300,7 @@ const predictedMonthlyCost = computed(() => {
 
 // 電錶讀數圖表數據
 const readingChartData = computed(() => {
-  if (!Array.isArray(readings.value) || readings.value.length === 0) {
+  if (processedReadings.value.length === 0) {
     return {
       labels: [],
       datasets: [{
@@ -234,12 +314,11 @@ const readingChartData = computed(() => {
     }
   }
   
-  const sortedData = [...readings.value].sort((a, b) => new Date(a.date) - new Date(b.date))
   return {
-    labels: sortedData.map(r => new Date(r.date).toLocaleDateString('zh-TW')),
+    labels: processedReadings.value.map(r => new Date(r.date).toLocaleDateString('zh-TW')),
     datasets: [{
       label: '電錶讀數 (度)',
-      data: sortedData.map(r => r.reading || 0),
+      data: processedReadings.value.map(r => r.reading || 0),
       borderColor: '#3B82F6',
       backgroundColor: 'rgba(59, 130, 246, 0.1)',
       tension: 0.4,
@@ -250,7 +329,9 @@ const readingChartData = computed(() => {
 
 // 用量圖表數據 - 顯示平均日用量
 const usageChartData = computed(() => {
-  if (!Array.isArray(readings.value) || readings.value.length === 0) {
+  const validData = processedReadings.value.filter(r => !r.isFirstRecord)
+  
+  if (validData.length === 0) {
     return {
       labels: [],
       datasets: [{
@@ -264,12 +345,11 @@ const usageChartData = computed(() => {
     }
   }
   
-  const sortedData = [...readings.value].sort((a, b) => new Date(a.date) - new Date(b.date))
   return {
-    labels: sortedData.map(r => new Date(r.date).toLocaleDateString('zh-TW')),
+    labels: validData.map(r => new Date(r.date).toLocaleDateString('zh-TW')),
     datasets: [{
       label: '平均日用量 (度)',
-      data: sortedData.map(r => r.dailyUsage || 0),
+      data: validData.map(r => r.dailyUsage || 0),
       borderColor: '#10B981',
       backgroundColor: 'rgba(16, 185, 129, 0.1)',
       tension: 0.4,
@@ -280,7 +360,9 @@ const usageChartData = computed(() => {
 
 // 費用圖表數據 - 顯示期間費用
 const costChartData = computed(() => {
-  if (!Array.isArray(readings.value) || readings.value.length === 0) {
+  const validData = processedReadings.value.filter(r => !r.isFirstRecord)
+  
+  if (validData.length === 0) {
     return {
       labels: [],
       datasets: [{
@@ -294,12 +376,11 @@ const costChartData = computed(() => {
     }
   }
   
-  const sortedData = [...readings.value].sort((a, b) => new Date(a.date) - new Date(b.date))
   return {
-    labels: sortedData.map(r => new Date(r.date).toLocaleDateString('zh-TW')),
+    labels: validData.map(r => new Date(r.date).toLocaleDateString('zh-TW')),
     datasets: [{
       label: '期間費用 (元)',
-      data: sortedData.map(r => r.cost || 0),
+      data: validData.map(r => r.cost || 0),
       borderColor: '#F59E0B',
       backgroundColor: 'rgba(245, 158, 11, 0.1)',
       tension: 0.4,
@@ -311,6 +392,7 @@ const costChartData = computed(() => {
 // 圖表選項
 const chartOptions = {
   responsive: true,
+  maintainAspectRatio: false,
   plugins: {
     legend: {
       position: 'top',
@@ -332,6 +414,7 @@ const chartOptions = {
 
 const usageChartOptions = {
   responsive: true,
+  maintainAspectRatio: false,
   plugins: {
     legend: {
       position: 'top',
@@ -353,6 +436,7 @@ const usageChartOptions = {
 
 const costChartOptions = {
   responsive: true,
+  maintainAspectRatio: false,
   plugins: {
     legend: {
       position: 'top',
@@ -402,10 +486,10 @@ const deleteReading = async (id) => {
   }
 }
 
-// 更新計算（當電價改變時）
+// 更新計算（當電價改變時）- 由於使用computed屬性，會自動重新計算
 const updateCalculations = () => {
-  // 重新計算費用（如果需要的話，可以調用API更新）
-  console.log('電價更新為:', electricityRate.value)
+  console.log('電價更新為:', electricityRate.value, '元/度')
+  // processedReadings 是 computed 屬性，會自動響應 electricityRate 的變化
 }
 
 onMounted(async () => {
@@ -425,5 +509,24 @@ onMounted(async () => {
 .btn-sm {
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
+}
+
+.chart-container {
+  position: relative;
+  height: 400px;
+  width: 100%;
+}
+
+/* 確保圖表在大螢幕上也能正常顯示 */
+@media (min-width: 768px) {
+  .chart-container {
+    height: 350px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .chart-container {
+    height: 400px;
+  }
 }
 </style>
