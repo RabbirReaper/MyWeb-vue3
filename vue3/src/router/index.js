@@ -13,6 +13,9 @@ import accountingTool_createCategory from "../components/accounting/createCatego
 import accountingTool_showById from "../components/accounting/showById.vue"
 import accountingTool_showByDate from "../components/accounting/showByDate.vue"
 import accountingTool_total from "../components/accounting/total.vue"
+import electricMeter from "../components/electricMeter/index.vue"
+import electricMeter_show from "../components/electricMeter/show.vue"
+import electricMeter_create from "../components/electricMeter/create.vue"
 import test from "../components/Test.vue"
 
 const router = createRouter({
@@ -81,6 +84,23 @@ const router = createRouter({
           path : 'total',
           name : 'Accounting_tools_total',
           component : accountingTool_total
+        }
+      ]
+    },
+    {
+      path:"/Tool/electricMeter",
+      name:"ElectricMeter_tools",
+      component: electricMeter,
+      children: [
+        {
+          path: 'show',
+          name: 'ElectricMeter_tools_show',
+          component: electricMeter_show
+        },
+        {
+          path: 'create',
+          name: 'ElectricMeter_tools_create',
+          component: electricMeter_create
         }
       ]
     },

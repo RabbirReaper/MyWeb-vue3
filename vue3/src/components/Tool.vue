@@ -3,12 +3,20 @@
     <RouterLink :to="`/Tool/accounting`"
       class="card text-left text-decoration-none mt-3 pt-3 ps-3 bg-secondary custom-card">
       <h3>
-        This is a accounting tool.
+        記帳工具
       </h3>
       <p>
-        accounting tool is accounting tool.
+        管理您的收入與支出，分析財務狀況。
       </p>
-
+    </RouterLink>
+    <RouterLink :to="`/Tool/electricMeter`"
+      class="card text-left text-decoration-none mt-3 pt-3 ps-3 bg-secondary custom-card">
+      <h3>
+        電錶統計工具
+      </h3>
+      <p>
+        記錄電錶讀數，分析用電量與費用趨勢。
+      </p>
     </RouterLink>
   </div>
 </template>

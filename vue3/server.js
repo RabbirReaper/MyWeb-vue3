@@ -11,6 +11,7 @@ import CashFlow from './models/cashFlow.js'
 import CashFlowType from './models/cashFlowType.js'
 import ExpenseCategory from './models/expenseCategory.js'
 import IncomeCategory from './models/incomeCategory.js'
+import ElectricMeterReading from './models/electricMeterReading.js'
 
 dotenv.config()
 const app = express()
@@ -203,6 +204,122 @@ app.post('/category', async (req, res, next) => {
   next()
 })
 
+// 電錶記錄 API
+// 獲取所有電錶記錄
+app.get('/electricMeter', async (req, res) => {
+  try {
+    const readings = await ElectricMeterReading.find({}).sort({ date: -1 });
+    res.json(readings);
+  } catch (error) {
+    console.error('Error fetching electric meter readings:', error);
+    res.status(500).json({ error: 'Failed to fetch electric meter readings' });
+  }
+});
+
+// 獲取最後一筆電錶記錄
+app.get('/electricMeter/last', async (req, res) => {
+  try {
+    const lastReading = await ElectricMeterReading.findOne({}).sort({ date: -1 });
+    if (!lastReading) {
+      return res.status(404).json({ error: '尚無電錶記錄' });
+    }
+    res.json(lastReading);
+  } catch (error) {
+    console.error('Error fetching last electric meter reading:', error);
+    res.status(500).json({ error: 'Failed to fetch last electric meter reading' });
+  }
+});
+
+// 新增電錶記錄
+app.post('/electricMeter', async (req, res) => {
+  try {
+    const { reading, date } = req.body;
+    
+    // 正確處理時區 - 將接收到的時間當作台灣當地時間
+    let recordDate;
+    if (typeof date === 'string') {
+      // 如果是字串格式，當作當地時間處理
+      recordDate = new Date(date);
+    } else {
+      recordDate = new Date(date);
+    }
+    
+    // 獲取前一筆記錄來計算用量
+    const previousReading = await ElectricMeterReading.findOne({}).sort({ date: -1 });
+    
+    let dailyUsage = 0;
+    let periodUsage = 0;
+    let daysDiff = 0;
+    
+    if (previousReading) {
+      periodUsage = Math.max(0, reading - previousReading.reading);
+      
+      // 計算兩次記錄之間的天數差
+      const previousDate = new Date(previousReading.date);
+      const timeDiff = recordDate - previousDate;
+      daysDiff = Math.max(1, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
+      
+      // 計算平均日用量
+      dailyUsage = periodUsage / daysDiff;
+    }
+    
+    // 預設電價，您可以根據需要修改或從環境變數獲取
+    const electricityRate = 5.5;
+    const cost = periodUsage * electricityRate;
+    
+    const newReading = new ElectricMeterReading({
+      reading,
+      dailyUsage,
+      cost,
+      date: recordDate,
+      periodUsage, // 新增：期間總用量
+      daysDiff     // 新增：間隔天數
+    });
+    
+    await newReading.save();
+    res.status(201).json({ 
+      message: 'Electric meter reading created successfully', 
+      data: newReading 
+    });
+  } catch (error) {
+    console.error('Error creating electric meter reading:', error);
+    res.status(500).json({ error: 'Failed to create electric meter reading' });
+  }
+});
+
+// 刪除電錶記錄
+app.delete('/electricMeter/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedReading = await ElectricMeterReading.findByIdAndDelete(id);
+    
+    if (!deletedReading) {
+      return res.status(404).json({ error: '找不到指定的電錶記錄' });
+    }
+    
+    res.status(200).json({ message: 'Electric meter reading deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting electric meter reading:', error);
+    res.status(500).json({ error: 'Failed to delete electric meter reading' });
+  }
+});
+
+// 根據 ID 獲取特定電錶記錄
+app.get('/electricMeter/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const reading = await ElectricMeterReading.findById(id);
+    
+    if (!reading) {
+      return res.status(404).json({ error: '找不到指定的電錶記錄' });
+    }
+    
+    res.json(reading);
+  } catch (error) {
+    console.error('Error fetching electric meter reading:', error);
+    res.status(500).json({ error: '伺服器錯誤' });
+  }
+});
 
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
