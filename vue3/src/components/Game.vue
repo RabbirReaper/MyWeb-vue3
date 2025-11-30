@@ -3,6 +3,7 @@ import { ref, computed, onMounted, watch, nextTick, onUnmounted} from 'vue';
 import bcrypt from 'bcryptjs'
 import { useCounterStore } from '@/stores/counter'
 import { storeToRefs } from 'pinia'
+import { EdgeTTS } from 'edge-tts-universal/browser'
 
 // 獲取store實例
 const store = useCounterStore()
@@ -112,10 +113,159 @@ watch(() => collapseContentRef.value?.innerHTML, () => {
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
 });
+
+// ===== TTS 測試功能 =====
+const ttsText = ref('Hello, this is a test of text to speech!'); // 要轉換的文字
+const ttsVoice = ref('en-US-EmmaMultilingualNeural'); // 語音選擇
+const ttsLoading = ref(false); // 載入狀態
+const ttsMessage = ref(''); // 訊息顯示
+const audioUrl = ref(''); // 音訊 URL
+
+// 可用的語音選項
+const voices = [
+  { value: 'en-US-EmmaMultilingualNeural', label: 'English (US) - Emma' },
+  { value: 'en-GB-SoniaNeural', label: 'English (UK) - Sonia' },
+  { value: 'zh-CN-XiaoxiaoNeural', label: '中文 (簡體) - 曉曉' },
+  { value: 'zh-TW-HsiaoChenNeural', label: '中文 (台灣) - 曉臻' },
+  { value: 'ja-JP-NanamiNeural', label: '日本語 - Nanami' },
+];
+
+// 執行 TTS
+const handleTTS = async () => {
+  if (!ttsText.value.trim()) {
+    ttsMessage.value = '請輸入文字！';
+    return;
+  }
+
+  ttsLoading.value = true;
+  ttsMessage.value = '正在生成語音...';
+
+  try {
+    // 清除舊的音訊 URL
+    if (audioUrl.value) {
+      URL.revokeObjectURL(audioUrl.value);
+      audioUrl.value = '';
+    }
+
+    // 建立 TTS 實例（瀏覽器版本）
+    const tts = new EdgeTTS(ttsText.value, ttsVoice.value);
+
+    // 合成語音
+    const result = await tts.synthesize();
+
+    // 建立 Blob 和 URL
+    const blob = new Blob([result.audio], { type: 'audio/mpeg' });
+    audioUrl.value = URL.createObjectURL(blob);
+
+    ttsMessage.value = '語音生成成功！';
+
+    // 自動播放
+    nextTick(() => {
+      const audioElement = document.getElementById('ttsAudio');
+      if (audioElement) {
+        audioElement.play();
+      }
+    });
+
+  } catch (error) {
+    console.error('TTS Error:', error);
+    ttsMessage.value = `錯誤: ${error.message}`;
+  } finally {
+    ttsLoading.value = false;
+  }
+};
+
+// 清除音訊
+const clearAudio = () => {
+  if (audioUrl.value) {
+    URL.revokeObjectURL(audioUrl.value);
+    audioUrl.value = '';
+  }
+  ttsMessage.value = '';
+};
 </script>
 
 <template>
   <div class="container mt-5">
+    <!-- TTS 測試區塊 -->
+    <div class="card mx-auto mb-5" style="max-width: 600px;">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+          <i class="bi bi-megaphone"></i> Text-to-Speech 測試
+        </h4>
+      </div>
+      <div class="card-body">
+        <!-- 文字輸入 -->
+        <div class="mb-3">
+          <label for="ttsTextInput" class="form-label">輸入要轉換的文字</label>
+          <textarea
+            id="ttsTextInput"
+            class="form-control"
+            v-model="ttsText"
+            rows="3"
+            placeholder="輸入任何文字..."
+            :disabled="ttsLoading"
+          ></textarea>
+        </div>
+
+        <!-- 語音選擇 -->
+        <div class="mb-3">
+          <label for="voiceSelect" class="form-label">選擇語音</label>
+          <select
+            id="voiceSelect"
+            class="form-select"
+            v-model="ttsVoice"
+            :disabled="ttsLoading"
+          >
+            <option v-for="voice in voices" :key="voice.value" :value="voice.value">
+              {{ voice.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- 按鈕區 -->
+        <div class="d-flex gap-2 mb-3">
+          <button
+            class="btn btn-success flex-grow-1"
+            @click="handleTTS"
+            :disabled="ttsLoading"
+          >
+            <span v-if="ttsLoading" class="spinner-border spinner-border-sm me-2"></span>
+            <i v-else class="bi bi-play-circle me-2"></i>
+            {{ ttsLoading ? '生成中...' : '生成語音' }}
+          </button>
+          <button
+            class="btn btn-secondary"
+            @click="clearAudio"
+            :disabled="ttsLoading || !audioUrl"
+          >
+            <i class="bi bi-x-circle"></i> 清除
+          </button>
+        </div>
+
+        <!-- 訊息顯示 -->
+        <div v-if="ttsMessage" class="alert"
+          :class="{
+            'alert-info': ttsLoading,
+            'alert-success': !ttsLoading && ttsMessage.includes('成功'),
+            'alert-danger': ttsMessage.includes('錯誤')
+          }">
+          {{ ttsMessage }}
+        </div>
+
+        <!-- 音訊播放器 -->
+        <div v-if="audioUrl" class="mt-3">
+          <label class="form-label">播放音訊</label>
+          <audio
+            id="ttsAudio"
+            :src="audioUrl"
+            controls
+            class="w-100"
+          ></audio>
+        </div>
+      </div>
+    </div>
+
     <div class="text-center">
       <h1 class="mb-4">登入驗證</h1>
       <p>儲存與檢查密碼範例 (bcrypt.js)</p>
